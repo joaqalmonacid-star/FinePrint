@@ -29,15 +29,21 @@
   button, input, select { font: inherit; color: inherit; }
   :focus-visible { outline: 3px solid var(--timbre); outline-offset: 3px; }
 
-  .testbar { display: none; background: #FFE08A; text-align: center; padding: 10px 16px; font-size: 14px; font-weight: 600; }
-  .testbar.on { display: block; }
-
-  /* membrete */
-  .membrete { max-width: 1120px; margin: 0 auto; padding: 28px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+  /* membrete y CTA siempre visible */
+  .membrete { position: sticky; top: 0; z-index: 60; max-width: 1120px; margin: 0 auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; background: rgba(227,232,239,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--linea); }
   .marca { font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: -0.4px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
   .sello { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--timbre); position: relative; }
   .sello::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--timbre); }
-  .membrete a.mini { font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--tinta); padding-bottom: 2px; }
+  .btn-cta { background: var(--timbre); color: #fff; border: 0; border-radius: 999px; padding: 11px 20px; font-weight: 700; font-size: 15px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px -8px rgba(10,132,73,.75); transition: background .15s, transform .15s; }
+  .btn-cta:hover { background: var(--timbre-d); transform: translateY(-1px); }
+  .btn-cta::after { content: "→"; font-size: 18px; line-height: 1; }
+  .hero-cta { margin-top: 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .hero-cta .btn { padding: 16px 28px; font-size: 18px; border-radius: 999px; box-shadow: 0 14px 28px -14px rgba(10,132,73,.95); }
+  .hero-cta small { color: var(--gris); font-size: 14px; }
+  .cta-fija { position: fixed; bottom: 0; left: 0; right: 0; z-index: 70; background: var(--tinta); color: var(--papel); display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 24px; box-shadow: 0 -12px 30px -20px rgba(0,0,0,.7); }
+  .cta-fija span { font-size: 14px; color: #C9D1DA; }
+  .cta-fija .btn-cta { padding: 10px 18px; }
+  body { padding-bottom: 68px; }
 
   /* ===== HERO: el documento ===== */
   .hero { max-width: 1240px; margin: 0 auto; padding: 44px 24px 96px; }
@@ -236,11 +242,9 @@
 
 <div class="cielo" id="cielo" aria-hidden="true"></div>
 <div class="nota-cielo" id="notaCielo" aria-hidden="true">Datos inventados. Los tuyos viajan igual, sin que lo veas.</div>
-<div class="testbar" id="testbar">Modo prueba: falta pegar el link del formulario (FORM_ENDPOINT). Las reservas no se están guardando.</div>
-
 <header class="membrete">
   <a class="marca" href="#"><span class="sello" aria-hidden="true"></span>FinePrint</a>
-  <a class="mini" href="#reserva">Reservar cupo</a>
+  <a class="btn-cta js-cta" href="registro.html">Reservar cupo</a>
 </header>
 
 <main>
@@ -250,6 +254,10 @@
     <div class="hero-texto">
     <h1 class="titular" id="titular">Antes de entrar, acepta nuestros términos.</h1>
     <p class="bajada" id="bajada">Es lo mismo que te piden todas las páginas. Haz lo que haces siempre.</p>
+    <div class="hero-cta">
+      <a class="btn btn-verde js-cta" href="registro.html">Reservar mi cupo</a>
+      <small>Sin cobro hoy · 14 días de piloto · cupos limitados</small>
+    </div>
     </div>
 
     <div class="hoja" id="hoja">
@@ -396,48 +404,24 @@
             <li>Al final decides si sigues a este precio.</li>
           </ul>
         </div>
-        <form class="formulario" id="formReserva" novalidate>
-          <div id="campos">
-            <div class="campo">
-              <label for="email">Tu correo</label>
-              <input type="email" id="email" name="correo" placeholder="nombre@correo.com" autocomplete="email">
-            </div>
-            <div class="campo">
-              <label for="edad">Tu edad</label>
-              <select id="edad" name="edad">
-                <option value="">Elige un rango</option>
-                <option>18 a 29</option>
-                <option>30 a 39</option>
-                <option>40 a 49</option>
-                <option>50 a 65</option>
-                <option>Más de 65</option>
-              </select>
-            </div>
-            <div class="campo">
-              <label>¿Alguna vez te hackearon una cuenta, te estafaron por internet o te avisaron de una filtración?</label>
-              <div class="opciones">
-                <label><input type="radio" name="incidente" value="si"> Sí</label>
-                <label><input type="radio" name="incidente" value="no"> No</label>
-              </div>
-            </div>
-            <label class="permiso"><input type="checkbox" id="permiso"> Acepto que FinePrint me escriba sobre el piloto. Usan mi correo solo para esto y puedo pedir que lo borren cuando quiera.</label>
-            <input type="hidden" name="precio_mostrado" id="precio_mostrado">
-            <input type="hidden" name="variante" id="variante">
-            <input type="hidden" name="acepto_sin_leer" id="acepto_sin_leer">
-            <input type="hidden" name="origen" id="origen">
-            <div class="linea-firma">Firma: tu correo, y nada más.</div>
-            <button class="btn btn-verde" type="submit" id="btnReservar">Reservar mi cupo</button>
-            <div class="error" id="error"></div>
-          </div>
-          <div class="listo" id="listo">
-            <span class="timbre-listo">Reservado</span>
-            <p>Te escribimos en los próximos días para partir con el piloto.</p>
-          </div>
-        </form>
+        <div class="formulario">
+          <p style="font-family: var(--serif); font-size: 22px; line-height: 1.35; margin-bottom: 18px;">Déjanos tus datos de contacto en la página de registro. Ahí verás el precio que te tocó y confirmas tu cupo en un minuto.</p>
+          <ul class="condiciones" style="margin-top: 0;">
+            <li>Te enviamos un correo de confirmación y agradecimiento.</li>
+            <li>Nos llega un correo con tus datos para organizar el piloto.</li>
+          </ul>
+          <div class="linea-firma">Firma: tu correo, y nada más.</div>
+          <a class="btn btn-verde js-cta" href="registro.html" style="width:100%; text-align:center;">Reservar mi cupo →</a>
+        </div>
       </div>
     </div>
   </section>
 </main>
+
+<div class="cta-fija">
+  <span>14 días de piloto · diagnóstico, avisos y 5 alias · sin cobro hoy</span>
+  <a class="btn-cta js-cta" href="registro.html">Reservar cupo</a>
+</div>
 
 <footer>
   <div class="cont">
@@ -448,7 +432,7 @@
 
 <script>
   // ===== CONFIGURACIÓN =====
-  var FORM_ENDPOINT = "";                        // link de Formspree, ej: https://formspree.io/f/abcd1234
+  var REGISTRO_URL = "registro.html";            // página de registro (mismo repositorio)
   var PRECIOS = { a: "$2.990", b: "$9.990" };    // los dos precios que se prueban
   // ==========================
 
@@ -487,6 +471,7 @@
     var seg = (performance.now() - inicio) / 1000;
     var segTxt = seg < 60 ? seg.toFixed(1).replace(".", ",") + " segundos" : Math.round(seg / 60) + " minutos";
     aceptoSinLeer = sinLeer ? "si" : "no";
+    actualizarCTAs();
     document.body.classList.add("aceptado");
     document.getElementById("consentTxt").textContent = sinLeer ? "Términos aceptados sin leer." : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
@@ -688,31 +673,17 @@
   if (v !== "a" && v !== "b") { v = Math.random() < 0.5 ? "a" : "b"; }
   try { localStorage.setItem("fp_variante", v); } catch (e) {}
   document.getElementById("precio").innerHTML = PRECIOS[v] + " <small>al mes</small>";
-  document.getElementById("precio_mostrado").value = PRECIOS[v];
-  document.getElementById("variante").value = v;
-  document.getElementById("origen").value = params.get("utm_source") || document.referrer || "directo";
-  if (!FORM_ENDPOINT) document.getElementById("testbar").classList.add("on");
+  var origen = params.get("utm_source") || document.referrer || "directo";
 
-  var form = document.getElementById("formReserva");
-  var errorBox = document.getElementById("error");
-  function error(msg) { errorBox.textContent = msg; errorBox.style.display = "block"; }
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    errorBox.style.display = "none";
-    var email = document.getElementById("email").value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return error("Revisa tu correo: falta la @ o el dominio.");
-    if (!document.getElementById("edad").value) return error("Elige tu rango de edad.");
-    if (!form.querySelector("input[name=incidente]:checked")) return error("Responde si te ha pasado algo así.");
-    if (!document.getElementById("permiso").checked) return error("Marca el permiso para que podamos escribirte.");
-    document.getElementById("acepto_sin_leer").value = aceptoSinLeer || "no hizo clic";
-    var btn = document.getElementById("btnReservar");
-    btn.disabled = true; btn.textContent = "Reservando...";
-    function ok() { document.getElementById("campos").style.display = "none"; document.getElementById("listo").style.display = "block"; }
-    if (!FORM_ENDPOINT) { console.log("Modo prueba:", Object.fromEntries(new FormData(form))); ok(); return; }
-    fetch(FORM_ENDPOINT, { method: "POST", body: new FormData(form), headers: { "Accept": "application/json" } })
-      .then(function (r) { if (r.ok) ok(); else throw new Error(); })
-      .catch(function () { btn.disabled = false; btn.textContent = "Reservar mi cupo"; error("No se pudo reservar. Revisa tu conexión e intenta de nuevo."); });
-  });
+  function actualizarCTAs() {
+    var q = new URLSearchParams();
+    q.set("precio", v);
+    q.set("sin_leer", aceptoSinLeer || "no hizo clic");
+    q.set("origen", origen);
+    var destino = REGISTRO_URL + "?" + q.toString();
+    document.querySelectorAll(".js-cta").forEach(function (a) { a.href = destino; });
+  }
+  actualizarCTAs();
 </script>
 </body>
 </html>

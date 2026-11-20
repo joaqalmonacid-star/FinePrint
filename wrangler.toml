@@ -1,0 +1,10 @@
+name = "fineprint-registro"
+main = "api/registro.js"
+compatibility_date = "2026-11-20"
+
+# Los secretos NO van aquí. Se cargan con:
+#   wrangler secret put BREVO_API_KEY
+#   wrangler secret put BREVO_SENDER_EMAIL
+#   wrangler secret put NOTIFY_EMAIL
+#   wrangler secret put BREVO_LIST_ID
+# Opcionales: BREVO_SENDER_NAME, BREVO_CUSTOM_ATTRS

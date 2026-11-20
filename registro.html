@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reserva tu cupo · FinePrint</title>
+<meta name="description" content="Reserva tu cupo en el piloto de FinePrint: diagnóstico de exposición, avisos de filtración y alias por tienda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,400&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mesa: #E3E8EF;
+    --papel: #FBFCFD;
+    --tinta: #101114;
+    --gris: #5B6472;
+    --chica: #8A93A0;
+    --linea: #CDD4DE;
+    --timbre: #0A8449;
+    --timbre-d: #07673A;
+    --resaltador: #3DDC84;
+    --serif: 'Newsreader', Georgia, serif;
+    --sans: 'Instrument Sans', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--mesa); color: var(--tinta); font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--timbre); outline-offset: 3px; }
+
+  .aviso { display: none; background: #FFE08A; text-align: center; padding: 10px 16px; font-size: 14px; font-weight: 600; }
+  .aviso.on { display: block; }
+
+  .membrete { max-width: 1080px; margin: 0 auto; padding: 24px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+  .marca { font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: -0.4px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .sello { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--timbre); position: relative; }
+  .sello::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--timbre); }
+  .volver { font-size: 15px; font-weight: 600; text-decoration: none; color: var(--gris); border-bottom: 2px solid var(--linea); padding-bottom: 2px; }
+  .volver:hover { color: var(--tinta); border-color: var(--tinta); }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+  .h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 5vw, 60px); line-height: 1.04; letter-spacing: -1.2px; max-width: 18ch; }
+  .bajada { font-family: var(--serif); font-size: clamp(18px, 2vw, 22px); color: var(--gris); max-width: 52ch; margin-top: 14px; }
+  .pasos { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .pasos span { font-size: 13px; font-weight: 600; background: var(--papel); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 13px; }
+
+  .rejilla { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: start; margin-top: 48px; }
+  .lado h2 { font-family: var(--serif); font-size: 24px; font-weight: 600; margin-bottom: 14px; }
+  .lado p { color: var(--gris); margin-bottom: 16px; }
+  .precio { font-family: var(--serif); font-size: 56px; line-height: 1; letter-spacing: -1.5px; color: var(--timbre); margin: 8px 0 4px; }
+  .precio small { font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--gris); letter-spacing: 0; }
+  .condiciones { list-style: none; border-top: 1px solid var(--linea); margin-top: 26px; }
+  .condiciones li { padding: 12px 0; border-bottom: 1px solid var(--linea); font-family: var(--serif); font-size: 18px; }
+  .nota { font-size: 13px; color: var(--chica); margin-top: 20px; line-height: 1.5; }
+
+  .formulario { background: var(--papel); border-radius: 3px; padding: 32px; box-shadow: 0 30px 60px -34px rgba(16,17,20,.35); }
+  .campo { margin-bottom: 20px; }
+  .campo label.etiqueta { display: block; font-weight: 600; font-size: 15px; margin-bottom: 7px; }
+  .campo input[type="text"], .campo input[type="email"], .campo input[type="tel"], .campo select {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--linea); border-radius: 8px; background: #fff;
+  }
+  .campo input:focus, .campo select:focus { border-color: var(--timbre); outline: none; }
+  .opciones { display: flex; gap: 10px; }
+  .opciones label { flex: 1; display: flex; gap: 8px; align-items: center; border: 1.5px solid var(--linea); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-weight: 400; }
+  .opciones input { width: auto; accent-color: var(--timbre); }
+  .permiso { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--gris); }
+  .permiso input { margin-top: 4px; accent-color: var(--timbre); }
+  .btn { border: 0; cursor: pointer; border-radius: 8px; padding: 15px 22px; font-weight: 700; font-size: 17px; text-decoration: none; display: inline-block; }
+  .btn-verde { background: var(--timbre); color: #fff; width: 100%; box-shadow: 0 12px 26px -14px rgba(10,132,73,.95); }
+  .btn-verde:hover { background: var(--timbre-d); }
+  .btn:disabled { opacity: .65; cursor: wait; }
+  .error { display: none; color: #B42318; font-size: 14px; margin-top: 12px; }
+  .linea-firma { border-top: 1.5px solid var(--tinta); margin: 24px 0 18px; padding-top: 8px; font-size: 13px; color: var(--gris); }
+  .listo { display: none; text-align: center; padding: 24px 0; }
+  .listo .timbre-listo { display: inline-block; font-family: var(--serif); font-size: 32px; font-weight: 600; color: var(--timbre); border: 3px solid var(--timbre); border-radius: 10px; padding: 6px 20px; transform: rotate(-6deg); }
+  .listo h2 { font-family: var(--serif); font-size: 26px; margin: 24px 0 10px; }
+  .listo p { color: var(--gris); max-width: 44ch; margin: 0 auto 10px; }
+  .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  footer { max-width: 1080px; margin: 0 auto; padding: 0 24px 48px; font-size: 14px; color: var(--gris); }
+
+  @media (max-width: 860px) {
+    .rejilla { grid-template-columns: 1fr; gap: 32px; margin-top: 32px; }
+    .formulario { padding: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aviso" id="aviso">Modo prueba: el registro aún no está conectado a Brevo. No se enviarán correos ni se guardarán datos.</div>
+
+<header class="membrete">
+  <a class="marca" href="index.html"><span class="sello" aria-hidden="true"></span>FinePrint</a>
+  <a class="volver" href="index.html">← Volver</a>
+</header>
+
+<main>
+  <h1 class="h1">Reserva tu cupo en el piloto.</h1>
+  <p class="bajada">Te pedimos solo lo necesario para escribirte y armar el grupo. Sin letra chica.</p>
+  <div class="pasos">
+    <span>1 · Dejas tus datos</span>
+    <span>2 · Te confirmamos por correo</span>
+    <span>3 · Partimos el piloto</span>
+  </div>
+
+  <div class="rejilla">
+    <div class="lado">
+      <h2>Tu cupo</h2>
+      <div class="precio" id="precio">$2.990 <small>al mes</small></div>
+      <p>Precio de reserva del experimento. No se cobra nada hoy: al terminar los 14 días decides si sigues.</p>
+      <ul class="condiciones">
+        <li>Diagnóstico de exposición y puntaje de riesgo.</li>
+        <li>Avisos cuando aparezca una filtración nueva.</li>
+        <li>5 alias reales, uno por tienda.</li>
+      </ul>
+      <p class="nota">FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo. Tu correo se usa solo para el piloto y puedes pedir que lo borremos cuando quieras.</p>
+    </div>
+
+    <form class="formulario" id="formRegistro" novalidate>
+      <div id="campos">
+        <div class="campo">
+          <label class="etiqueta" for="nombre">Tu nombre <span style="font-weight:400;color:var(--chica)">(opcional)</span></label>
+          <input type="text" id="nombre" name="nombre" placeholder="Cómo te llamas" autocomplete="given-name" maxlength="60">
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="correo">Tu correo *</label>
+          <input type="email" id="correo" name="correo" placeholder="nombre@correo.com" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="telefono">Teléfono <span style="font-weight:400;color:var(--chica)">(opcional)</span></label>
+          <input type="tel" id="telefono" name="telefono" placeholder="+56 9 1234 5678" autocomplete="tel" maxlength="30">
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="edad">Rango de edad *</label>
+          <select id="edad" name="edad" required>
+            <option value="">Elige un rango</option>
+            <option>18 a 29</option>
+            <option>30 a 39</option>
+            <option>40 a 49</option>
+            <option>50 a 65</option>
+            <option>Más de 65</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label class="etiqueta">¿Alguna vez te hackearon una cuenta, te estafaron por internet o te avisaron de una filtración? *</label>
+          <div class="opciones">
+            <label><input type="radio" name="incidente" value="si" required> Sí</label>
+            <label><input type="radio" name="incidente" value="no" required> No</label>
+          </div>
+        </div>
+        <label class="permiso"><input type="checkbox" id="consent" required> Acepto que FinePrint me envíe un correo de confirmación y me escriba sobre el piloto. Uso mi correo solo para esto y puedo pedir que lo borren cuando quiera.</label>
+
+        <div class="honeypot" aria-hidden="true">
+          <label for="website">Deja este campo vacío</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <input type="hidden" name="precio_mostrado" id="precio_mostrado">
+        <input type="hidden" name="variante" id="variante">
+        <input type="hidden" name="acepto_sin_leer" id="acepto_sin_leer">
+        <input type="hidden" name="origen" id="origen">
+        <div class="linea-firma">Firma: tu correo, y nada más.</div>
+        <button class="btn btn-verde" type="submit" id="btnRegistro">Confirmar mi reserva</button>
+        <div class="error" id="error" role="alert"></div>
+      </div>
+      <div class="listo" id="listo">
+        <span class="timbre-listo">Reservado</span>
+        <h2>Revisa tu correo.</h2>
+        <p id="mensajeListo">Te enviamos un correo de confirmación y agradecimiento. A nosotros nos llegó tu información para organizar el piloto.</p>
+        <p><a class="volver" href="index.html">← Volver a FinePrint</a></p>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo.</footer>
+
+<script>
+  // ===== CONFIGURACIÓN =====
+  // Pegar aquí la URL del worker de Brevo, por ejemplo:
+  // https://fineprint-registro.<tu-subdominio>.workers.dev
+  // Si se deja vacío se usa /api/registro (Vercel / Netlify / servidor propio).
+  var REGISTRO_ENDPOINT = "";
+  var PRECIOS = { a: "$2.990", b: "$9.990" };
+  // ==========================
+
+  var params = new URLSearchParams(location.search);
+  var v = params.get("precio");
+  if (v !== "a" && v !== "b") { try { v = localStorage.getItem("fp_variante"); } catch (e) { v = null; } }
+  if (v !== "a" && v !== "b") { v = Math.random() < 0.5 ? "a" : "b"; }
+  try { localStorage.setItem("fp_variante", v); } catch (e) {}
+
+  document.getElementById("precio").innerHTML = PRECIOS[v] + " <small>al mes</small>";
+  document.getElementById("precio_mostrado").value = PRECIOS[v];
+  document.getElementById("variante").value = v;
+  document.getElementById("acepto_sin_leer").value = params.get("sin_leer") || "no hizo clic";
+  document.getElementById("origen").value = params.get("origen") || document.referrer || "directo";
+
+  var endpoint = REGISTRO_ENDPOINT || "/api/registro";
+  var esDemo = !REGISTRO_ENDPOINT && /github\.io$/.test(location.hostname);
+  if (esDemo) document.getElementById("aviso").classList.add("on");
+
+  var form = document.getElementById("formRegistro");
+  var errorBox = document.getElementById("error");
+  function error(msg) { errorBox.textContent = msg; errorBox.style.display = "block"; }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    errorBox.style.display = "none";
+
+    var correo = document.getElementById("correo").value.trim();
+    var edad = document.getElementById("edad").value;
+    var inc = form.querySelector("input[name=incidente]:checked");
+    var consent = document.getElementById("consent").checked;
+
+    if (!correo) return error("Falta tu correo.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return error("Revisa tu correo: falta la @ o el dominio.");
+    if (!edad) return error("Elige tu rango de edad.");
+    if (!inc) return error("Responde si te ha pasado algo así.");
+    if (!consent) return error("Marca el permiso para poder escribirte.");
+
+    function ok() {
+      document.getElementById("campos").style.display = "none";
+      document.getElementById("listo").style.display = "block";
+      if (esDemo) document.getElementById("mensajeListo").textContent =
+        "Modo prueba: no se envió ningún correo ni se guardó tu información. Conecta Brevo para activar el registro.";
+    }
+
+    var datos = Object.fromEntries(new FormData(form));
+    delete datos.website;
+
+    // Trampa para bots: si el campo oculto tiene algo, fingimos éxito sin enviar nada.
+    if (document.getElementById("website").value.trim()) { ok(); return; }
+
+    if (esDemo) { ok(); return; }
+
+    var btn = document.getElementById("btnRegistro");
+    btn.disabled = true; btn.textContent = "Enviando...";
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos)
+    })
+      .then(function (r) {
+        return r.json().catch(function () { throw new Error("Respuesta inválida del servidor"); })
+          .then(function (j) { if (!r.ok || !j.ok) throw new Error(j.error || "No se pudo guardar el registro"); return j; });
+      })
+      .then(ok)
+      .catch(function (err) {
+        btn.disabled = false; btn.textContent = "Confirmar mi reserva";
+        error("No se pudo completar el registro: " + err.message);
+      });
+  });
+</script>
+</body>
+</html>

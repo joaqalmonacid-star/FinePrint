@@ -1,0 +1,9 @@
+# Copiar a .dev.vars para probar en local con `wrangler dev`.
+# NUNCA subir .dev.vars al repositorio (ya está en .gitignore).
+
+BREVO_API_KEY=pega-aqui-tu-api-key-de-brevo
+BREVO_SENDER_EMAIL=contacto@tu-dominio-verificado.cl
+BREVO_SENDER_NAME=FinePrint
+BREVO_LIST_ID=
+NOTIFY_EMAIL=equipo@tu-dominio.cl
+BREVO_CUSTOM_ATTRS=0
