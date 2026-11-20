@@ -118,6 +118,14 @@
   .intro { font-family: var(--serif); font-size: 21px; color: var(--gris); max-width: 50ch; margin-top: 16px; line-height: 1.45; }
   .tinta .intro { color: #B8C0CC; }
 
+  /* quiénes somos */
+  .quienes .rotulo { font-family: var(--serif); font-size: 20px; color: var(--timbre-d); margin-bottom: 14px; }
+  .quienes { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 56px; margin-top: 48px; align-items: start; }
+  .quienes .numero { font-family: var(--serif); font-size: 110px; line-height: .75; color: var(--timbre); }
+  .quienes .hecho { font-family: var(--serif); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.32; max-width: 30ch; margin-top: 24px; }
+  .quienes .detalle { color: var(--gris); margin-top: 20px; max-width: 54ch; }
+  .quienes .firma-equipo { font-family: var(--serif); font-size: 22px; margin-top: 26px; color: var(--tinta); }
+
   /* expediente */
   .expediente { display: grid; grid-template-columns: 360px 1fr; gap: 56px; margin-top: 52px; align-items: start; }
   .campo label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
@@ -220,7 +228,8 @@
     .hero-grid { grid-template-columns: 1fr; gap: 36px; }
   }
   @media (max-width: 860px) {
-    .expediente, .maquina, .reserva { grid-template-columns: 1fr; gap: 32px; }
+    .expediente, .maquina, .reserva, .quienes { grid-template-columns: 1fr; gap: 32px; }
+    .quienes .numero { font-size: 80px; }
     .nodos { grid-template-columns: 1fr; gap: 10px; }
     .tramo { height: 28px; width: 2px; margin: 0 auto; }
     .sobre { display: none; }
@@ -396,6 +405,26 @@
   </section>
 
 
+  <!-- QUIÉNES SOMOS -->
+  <section class="seccion" id="quienes">
+    <div class="cont">
+      <p class="rotulo">Quiénes somos</p>
+      <h2 class="h2">Tres personas cansadas de la letra chica.</h2>
+      <div class="quienes">
+        <div>
+          <div class="numero" aria-hidden="true">3</div>
+          <p class="hecho">Somos tres estudiantes de Ingeniería Comercial de la Universidad del Desarrollo, del New Ventures Program.</p>
+        </div>
+        <div>
+          <p class="detalle">Empezamos FinePrint como nuestro proyecto de título. La motivación fue nuestra propia molestia e indignación: ver cuánta información tienen las grandes empresas sobre nosotros y lo complicado que parece volver a tener el control de nuestros datos. Nos parecía injusto.</p>
+          <p class="detalle">Así que decidimos ponerlo al revés: leer esos documentos por ti, explicarte en simple qué significa y dejarte lista la solicitud para pedir que borren tus datos. Sin miedo y sin promesas que no podemos cumplir.</p>
+          <p class="firma-equipo">El equipo de FinePrint</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- RESERVA -->
   <section class="seccion papel" id="reserva">
     <div class="cont">
@@ -431,7 +460,7 @@
 <footer>
   <div class="cont">
     <span>FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo. Los datos que aparecen en esta página son inventados.</span>
-    <span>Contacto: <a href="mailto:CORREO_DE_CONTACTO">CORREO_DE_CONTACTO</a></span>
+    <span>Contacto: <a href="mailto:administracionfineprint@gmail.com">administracionfineprint@gmail.com</a></span>
   </div>
 </footer>
 
