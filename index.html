@@ -128,6 +128,8 @@
   .aviso-demo { font-size: 14px; color: var(--gris); margin-top: 12px; }
   .folio { background: var(--papel); border: 1px solid var(--linea); border-radius: 3px; min-height: 360px; padding: 32px 36px; position: relative; }
   .folio-vacio { font-family: var(--serif); font-size: 21px; color: var(--chica); max-width: 30ch; }
+  .folio-demo { display: none; background: #FFF4D6; border-left: 4px solid #C79000; padding: 10px 14px; margin-bottom: 20px; font-size: 14px; line-height: 1.45; }
+  .folio-demo strong { font-weight: 700; color: #7A5A00; }
   .folio-cab { display: none; justify-content: space-between; align-items: flex-end; gap: 20px; padding-bottom: 18px; border-bottom: 1.5px solid var(--tinta); }
   .folio-cab .quien { font-family: var(--serif); font-size: 20px; }
   .folio-cab .quien small { display: block; font-family: var(--sans); font-size: 13px; color: var(--gris); }
@@ -328,6 +330,7 @@
         </form>
         <div class="folio" id="folio">
           <p class="folio-vacio" id="folioVacio">Aquí aparece tu expediente: los sitios donde está tu correo, ordenados por riesgo.</p>
+          <p class="folio-demo" id="folioDemo"><strong>Datos de ejemplo, no reales.</strong> Esto es solo una vista previa de cómo se vería tu diagnóstico: no consultamos bases de datos ni verificamos tu correo. Los resultados reales llegan con el piloto.</p>
           <div class="folio-cab" id="folioCab">
             <div class="quien"><small>Expediente de ejemplo</small><span id="quien"></span></div>
             <div class="puntaje"><b>72</b><span>riesgo sobre 100</span></div>
@@ -499,6 +502,7 @@
     var correo = document.getElementById("correoExp").value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { document.getElementById("correoExp").focus(); return; }
     document.getElementById("folioVacio").style.display = "none";
+    document.getElementById("folioDemo").style.display = "block";
     document.getElementById("folioCab").style.display = "flex";
     document.getElementById("quien").textContent = correo;
     document.getElementById("correoCarta").textContent = correo;
