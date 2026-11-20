@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinePrint · Leemos la letra chica por ti</title>
+<meta name="description" content="FinePrint te muestra dónde están tus datos, te avisa cuando se filtran y te deja lista la solicitud para que la empresa los borre.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,400&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mesa: #E3E8EF;
+    --papel: #FBFCFD;
+    --tinta: #101114;
+    --gris: #5B6472;
+    --chica: #8A93A0;
+    --linea: #CDD4DE;
+    --timbre: #0A8449;
+    --timbre-d: #07673A;
+    --resaltador: #3DDC84;
+    --serif: 'Newsreader', Georgia, serif;
+    --sans: 'Instrument Sans', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--mesa); color: var(--tinta); font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--timbre); outline-offset: 3px; }
+
+  .testbar { display: none; background: #FFE08A; text-align: center; padding: 10px 16px; font-size: 14px; font-weight: 600; }
+  .testbar.on { display: block; }
+
+  /* membrete */
+  .membrete { max-width: 1120px; margin: 0 auto; padding: 28px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+  .marca { font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: -0.4px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .sello { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--timbre); position: relative; }
+  .sello::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--timbre); }
+  .membrete a.mini { font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--tinta); padding-bottom: 2px; }
+
+  /* ===== HERO: el documento ===== */
+  .hero { max-width: 1240px; margin: 0 auto; padding: 44px 24px 96px; }
+  .titular { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -1.6px; max-width: 15ch; }
+  .bajada { font-family: var(--serif); font-size: clamp(19px, 2vw, 23px); line-height: 1.45; color: var(--gris); max-width: 46ch; margin-top: 18px; }
+
+  .hero-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .hero-texto { padding-top: 12px; }
+  .aceptado .consent .acciones, .aceptado .chica-wrap .pista { display: none; }
+  .hoja { position: relative; background: var(--papel); max-width: 760px; border-radius: 3px; box-shadow: 0 1px 0 var(--linea), 0 30px 60px -30px rgba(16,17,20,.35); }
+  .hoja-cab { padding: 28px 36px 0; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+  .hoja-cab h2 { font-family: var(--serif); font-size: 15px; font-weight: 600; letter-spacing: .2px; }
+  .hoja-cab span { font-size: 12px; color: var(--chica); }
+  .chica-wrap { position: relative; height: 340px; overflow: hidden; margin: 14px 36px 0; cursor: none; }
+  .chica-wrap::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(to bottom, rgba(251,252,253,0), var(--papel)); pointer-events: none; }
+  .chica { font-family: var(--serif); font-size: 9.5px; line-height: 1.42; color: var(--chica); text-align: justify; hyphens: auto; }
+  .chica p { margin-bottom: 5px; }
+  .chica b { color: var(--gris); font-weight: 600; }
+  .clave { transition: color .3s; }
+
+  /* lupa */
+  .lupa { position: absolute; width: 230px; height: 230px; border-radius: 50%; overflow: hidden; pointer-events: none; background: var(--papel); border: 2px solid var(--tinta); box-shadow: 0 14px 30px -12px rgba(16,17,20,.45); opacity: 0; transform: scale(.85); transition: opacity .15s, transform .15s; z-index: 3; }
+  .lupa.on { opacity: 1; transform: scale(1); }
+  .lupa .chica { position: absolute; top: 0; left: 0; transform-origin: 0 0; color: var(--tinta); }
+  .pista { position: absolute; top: 14px; right: 0; font-size: 12px; color: var(--gris); background: var(--papel); padding: 2px 0 2px 10px; z-index: 2; }
+
+  .consent { border-top: 1px solid var(--linea); padding: 20px 36px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .consent p { font-size: 15px; color: var(--gris); }
+  .consent .acciones { display: flex; gap: 10px; }
+  .btn { border: 0; cursor: pointer; border-radius: 8px; padding: 13px 22px; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block; }
+  .btn[hidden] { display: none; }
+  .btn-ok { background: var(--tinta); color: var(--papel); }
+  .btn-ok:hover { background: #2A2D33; }
+  .btn-leer { background: transparent; color: var(--tinta); box-shadow: inset 0 0 0 1.5px var(--linea); }
+  .btn-leer:hover { box-shadow: inset 0 0 0 1.5px var(--tinta); }
+  .btn-verde { background: var(--timbre); color: #fff; }
+  .btn-verde:hover { background: var(--timbre-d); }
+
+  /* estado aceptado */
+  .timbre { position: absolute; right: 28px; top: 96px; z-index: 4; font-family: var(--serif); font-size: 30px; font-weight: 600; color: var(--timbre); border: 3px solid var(--timbre); border-radius: 10px; padding: 6px 18px; transform: rotate(-9deg) scale(1.6); opacity: 0; pointer-events: none; }
+  .aceptado .timbre { animation: timbrar .45s cubic-bezier(.2,.9,.3,1.3) forwards; }
+  @keyframes timbrar { to { opacity: .92; transform: rotate(-9deg) scale(1); } }
+  .aceptado .chica-wrap { cursor: default; }
+  .aceptado .clave { color: var(--tinta); background-image: linear-gradient(var(--resaltador), var(--resaltador)); background-repeat: no-repeat; background-size: 0% 100%; animation: resaltar .6s ease-out forwards; }
+  .aceptado .clave:nth-of-type(1) { animation-delay: .5s; }
+  @keyframes resaltar { to { background-size: 100% 100%; } }
+
+  .veredicto { display: none; max-width: 760px; margin-top: 40px; }
+  .aceptado .veredicto { display: block; }
+  .veredicto > p.dato { font-family: var(--serif); font-size: clamp(20px, 2.2vw, 24px); color: var(--gris); max-width: 52ch; }
+  .clausulas { list-style: none; margin-top: 34px; border-top: 1.5px solid var(--tinta); }
+  .clausulas li { display: grid; grid-template-columns: 64px 1fr; gap: 6px 20px; padding: 22px 0; border-bottom: 1px solid var(--linea); opacity: 0; transform: translateY(8px); }
+  .aceptado .clausulas li { animation: aparecer .5s ease-out forwards; }
+  .aceptado .clausulas li:nth-child(1) { animation-delay: .9s; }
+  .aceptado .clausulas li:nth-child(2) { animation-delay: 1.15s; }
+  .aceptado .clausulas li:nth-child(3) { animation-delay: 1.4s; }
+  .aceptado .clausulas li:nth-child(4) { animation-delay: 1.65s; }
+  @keyframes aparecer { to { opacity: 1; transform: none; } }
+  .clausulas .num { font-family: var(--serif); font-size: 22px; color: var(--timbre-d); grid-row: span 2; }
+  .clausulas .orig { font-family: var(--serif); font-size: 15px; color: var(--chica); font-style: italic; }
+  .clausulas .trad { font-family: var(--serif); font-size: 24px; line-height: 1.3; }
+  .tranquilo { margin-top: 26px; font-size: 15px; color: var(--gris); }
+  .cierre-hero { margin-top: 30px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .cierre-hero p { font-family: var(--serif); font-size: 22px; max-width: 34ch; line-height: 1.35; }
+
+  /* ===== secciones ===== */
+  .seccion { padding: 104px 24px; }
+  .seccion.papel { background: var(--papel); }
+  .seccion.tinta { background: var(--tinta); color: var(--papel); }
+  .cont { max-width: 1120px; margin: 0 auto; }
+  .h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(32px, 4.4vw, 54px); line-height: 1.06; letter-spacing: -1px; max-width: 18ch; }
+  .intro { font-family: var(--serif); font-size: 21px; color: var(--gris); max-width: 50ch; margin-top: 16px; line-height: 1.45; }
+  .tinta .intro { color: #B8C0CC; }
+
+  /* expediente */
+  .expediente { display: grid; grid-template-columns: 360px 1fr; gap: 56px; margin-top: 52px; align-items: start; }
+  .campo label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+  .campo input, .campo select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--linea); border-radius: 8px; background: #fff; }
+  .campo input:focus, .campo select:focus { border-color: var(--tinta); outline: none; }
+  .fila-input { display: flex; gap: 10px; }
+  .fila-input input { flex: 1; min-width: 0; }
+  .aviso-demo { font-size: 14px; color: var(--gris); margin-top: 12px; }
+  .folio { background: var(--papel); border: 1px solid var(--linea); border-radius: 3px; min-height: 360px; padding: 32px 36px; position: relative; }
+  .folio-vacio { font-family: var(--serif); font-size: 21px; color: var(--chica); max-width: 30ch; }
+  .folio-cab { display: none; justify-content: space-between; align-items: flex-end; gap: 20px; padding-bottom: 18px; border-bottom: 1.5px solid var(--tinta); }
+  .folio-cab .quien { font-family: var(--serif); font-size: 20px; }
+  .folio-cab .quien small { display: block; font-family: var(--sans); font-size: 13px; color: var(--gris); }
+  .puntaje { text-align: right; }
+  .puntaje b { font-family: var(--serif); font-size: 56px; font-weight: 500; line-height: 1; }
+  .puntaje span { font-size: 14px; color: var(--gris); display: block; }
+  .registros { list-style: none; }
+  .registros li { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 0; border-bottom: 1px solid var(--linea); position: relative; }
+  .registros .sitio { font-weight: 600; }
+  .registros .anio { color: var(--gris); font-size: 15px; text-align: right; }
+  .registros .que { grid-column: 1 / -1; font-size: 15px; color: var(--gris); }
+  .registros li::after { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; background: var(--tinta); width: 100%; transform-origin: right; animation: destachar .55s ease-in-out forwards; animation-delay: var(--d); }
+  @keyframes destachar { to { transform: scaleX(0); } }
+  .consejo { display: none; margin-top: 22px; font-family: var(--serif); font-size: 20px; line-height: 1.4; }
+  .consejo .btn { margin-top: 16px; font-family: var(--sans); }
+  .carta { display: none; margin-top: 24px; background: #fff; border: 1px dashed var(--chica); padding: 26px 28px; font-family: var(--serif); font-size: 17px; line-height: 1.6; }
+  .carta p + p { margin-top: 10px; }
+  .carta .pie-carta { font-family: var(--sans); font-size: 14px; color: var(--gris); margin-top: 16px; }
+
+  /* alias */
+  .maquina { margin-top: 52px; display: grid; grid-template-columns: 360px 1fr; gap: 56px; align-items: start; }
+  .tinta .campo input { background: #1C1E23; border-color: #33373F; color: var(--papel); }
+  .tinta .campo input:focus { border-color: var(--resaltador); }
+  .tinta .aviso-demo { color: #8E97A4; }
+  .ruta { border: 1px solid #2C3038; border-radius: 3px; padding: 36px; }
+  .nodos { display: grid; grid-template-columns: 1fr 56px 2fr 56px 1fr; align-items: center; }
+  .nodo { text-align: center; }
+  .nodo small { display: block; font-size: 13px; color: #8E97A4; margin-bottom: 6px; }
+  .nodo b { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+  .nodo.alias b { color: var(--resaltador); font-size: 18px; overflow-wrap: anywhere; }
+  .tramo { height: 2px; background: #3A3F48; position: relative; }
+  .sobre { position: absolute; top: -7px; left: 0; width: 18px; height: 14px; background: var(--resaltador); border-radius: 2px; opacity: 0; }
+  .ruta.envio .t1 .sobre { animation: viajar .7s ease-in-out forwards; }
+  .ruta.envio .t2 .sobre { animation: viajar .7s ease-in-out .75s forwards; }
+  @keyframes viajar { 0% { opacity: 1; left: 0; } 90% { opacity: 1; left: calc(100% - 18px); } 100% { opacity: 0; left: calc(100% - 18px); } }
+  .ruta.cortado .t2 { background: transparent; border-top: 2px dashed #3A3F48; height: 0; }
+  .ruta.cortado .t2::after { content: "×"; position: absolute; left: 50%; top: -19px; transform: translateX(-50%); font-size: 26px; color: #FF8A7A; }
+  .ruta.cortado .bandeja { opacity: .35; }
+  .estado-ruta { margin-top: 30px; padding-top: 20px; border-top: 1px solid #2C3038; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .estado-ruta p { font-family: var(--serif); font-size: 20px; color: #D5DBE3; max-width: 40ch; }
+  .btn-cortar { background: transparent; color: var(--papel); box-shadow: inset 0 0 0 1.5px #4A505B; }
+  .btn-cortar:hover { box-shadow: inset 0 0 0 1.5px var(--papel); }
+  .tinta .btn-verde { background: var(--resaltador); color: var(--tinta); }
+  .tinta .btn-verde:hover { background: #63E59C; }
+
+  /* cláusula única */
+  .unica { max-width: 860px; }
+  .unica .rotulo { font-family: var(--serif); font-size: 20px; color: var(--timbre-d); }
+  .unica blockquote { font-family: var(--serif); font-size: clamp(28px, 3.6vw, 44px); line-height: 1.22; letter-spacing: -.5px; margin-top: 14px; }
+  .unica .firma { margin-top: 26px; font-size: 15px; color: var(--gris); }
+
+  /* reserva */
+  .reserva { display: grid; grid-template-columns: 1fr 460px; gap: 64px; margin-top: 52px; align-items: start; }
+  .precio { font-family: var(--serif); font-size: 72px; line-height: 1; letter-spacing: -1.5px; }
+  .precio small { font-size: 22px; color: var(--gris); letter-spacing: 0; }
+  .condiciones { margin-top: 26px; list-style: none; border-top: 1px solid var(--linea); }
+  .condiciones li { padding: 14px 0; border-bottom: 1px solid var(--linea); font-family: var(--serif); font-size: 20px; }
+  .formulario { background: var(--papel); border-radius: 3px; padding: 34px; box-shadow: 0 30px 60px -34px rgba(16,17,20,.35); }
+  .formulario .campo { margin-bottom: 20px; }
+  .opciones { display: flex; gap: 10px; }
+  .campo .opciones input { width: auto; padding: 0; accent-color: var(--timbre); }
+  .opciones label { flex: 1; display: flex; gap: 8px; align-items: center; border: 1.5px solid var(--linea); border-radius: 8px; padding: 12px 14px; cursor: pointer; font-weight: 400; margin: 0; }
+  .permiso { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--gris); }
+  .permiso input { margin-top: 4px; }
+  .linea-firma { border-top: 1.5px solid var(--tinta); margin: 26px 0 16px; padding-top: 8px; font-size: 13px; color: var(--gris); }
+  .formulario .btn { width: 100%; }
+  .error { display: none; color: #B42318; font-size: 14px; margin-top: 10px; }
+  .listo { display: none; text-align: center; padding: 30px 0; position: relative; }
+  .listo .timbre-listo { display: inline-block; font-family: var(--serif); font-size: 34px; font-weight: 600; color: var(--timbre); border: 3px solid var(--timbre); border-radius: 10px; padding: 6px 20px; transform: rotate(-7deg); }
+  .listo p { margin-top: 22px; color: var(--gris); }
+
+  /* datos que vuelan por la página */
+  .cielo { position: fixed; inset: 0; z-index: 50; pointer-events: none; overflow: hidden; transition: opacity .6s; }
+  .cielo.calma { opacity: 0; }
+  .vuela { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform, opacity; font-family: var(--sans); font-size: 14px; font-weight: 600; padding: 6px 13px; border-radius: 999px; background: var(--papel); color: var(--tinta); border: 1px solid var(--linea); box-shadow: 0 8px 18px -10px rgba(16,17,20,.45); }
+  .vuela.fuga { background: var(--resaltador); border-color: var(--resaltador); }
+  .vuela.tachado { background: var(--tinta); color: var(--papel); border-color: var(--tinta); border-radius: 2px; }
+  .vuela.grande { background: none; border: 0; box-shadow: none; padding: 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 30px; color: var(--tinta); }
+  .tinta-zona .vuela.grande { color: var(--papel); }
+  .nota-cielo { position: fixed; left: 16px; bottom: 16px; z-index: 51; background: var(--tinta); color: var(--papel); font-size: 13px; padding: 9px 14px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; pointer-events: none; max-width: 260px; line-height: 1.35; }
+  .nota-cielo.on { opacity: 1; transform: none; }
+
+  footer { padding: 40px 24px 56px; }
+  footer .cont { font-size: 14px; color: var(--gris); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  @media (max-width: 1000px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+  }
+  @media (max-width: 860px) {
+    .expediente, .maquina, .reserva { grid-template-columns: 1fr; gap: 32px; }
+    .nodos { grid-template-columns: 1fr; gap: 10px; }
+    .tramo { height: 28px; width: 2px; margin: 0 auto; }
+    .sobre { display: none; }
+    .ruta.cortado .t2 { border-top: 0; border-left: 2px dashed #3A3F48; width: 0; height: 28px; }
+    .ruta.cortado .t2::after { top: 0; left: 8px; transform: none; }
+    .chica-wrap { margin: 14px 20px 0; height: 300px; }
+    .hoja-cab, .consent { padding-left: 20px; padding-right: 20px; }
+    .pista { display: none; }
+    .timbre { right: 14px; top: 80px; font-size: 24px; }
+    .clausulas li { grid-template-columns: 44px 1fr; }
+    .vuela { font-size: 12px; }
+    .vuela.grande { font-size: 22px; }
+  }
+  @media (hover: none) { .chica-wrap { cursor: default; } .lupa, .pista { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cielo" id="cielo" aria-hidden="true"></div>
+<div class="nota-cielo" id="notaCielo" aria-hidden="true">Datos inventados. Los tuyos viajan igual, sin que lo veas.</div>
+<div class="testbar" id="testbar">Modo prueba: falta pegar el link del formulario (FORM_ENDPOINT). Las reservas no se están guardando.</div>
+
+<header class="membrete">
+  <a class="marca" href="#"><span class="sello" aria-hidden="true"></span>FinePrint</a>
+  <a class="mini" href="#reserva">Reservar cupo</a>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid">
+    <div class="hero-texto">
+    <h1 class="titular" id="titular">Antes de entrar, acepta nuestros términos.</h1>
+    <p class="bajada" id="bajada">Es lo mismo que te piden todas las páginas. Haz lo que haces siempre.</p>
+    </div>
+
+    <div class="hoja" id="hoja">
+      <div class="timbre" aria-hidden="true">Aceptado</div>
+      <div class="hoja-cab">
+        <h2>Términos y condiciones de uso</h2>
+        <span>Versión 4.1 · vigente desde el 1 de marzo</span>
+      </div>
+      <div class="chica-wrap" id="chicaWrap">
+        <span class="pista" aria-hidden="true">Pasa el cursor para leer</span>
+        <div class="chica" id="chica">
+          <p><b>1. Aceptación.</b> El acceso y uso de este sitio, sus aplicaciones, servicios, contenidos y funcionalidades, presentes o futuras, implica la aceptación plena y sin reservas de los presentes Términos y Condiciones, así como de la Política de Privacidad, la Política de Cookies y cualquier otro documento que los complemente, modifique o reemplace. Si no estás de acuerdo con alguno de ellos, deberás abstenerte de utilizar el sitio.</p>
+          <p><b>2. Definiciones.</b> Para efectos del presente instrumento, se entenderá por “Usuario” a toda persona natural o jurídica que acceda al sitio; por “Datos Personales” a cualquier información concerniente a personas naturales identificadas o identificables; por “Socios” a las sociedades relacionadas, filiales, coligadas, proveedores, contratistas y aliados comerciales, nacionales o extranjeros, con quienes la empresa mantenga vínculos de cualquier naturaleza.</p>
+          <p><b>3. Registro.</b> Para acceder a determinadas funcionalidades el Usuario deberá completar un formulario de registro, entregando información veraz, exacta y actualizada. El Usuario es el único responsable de la custodia de su clave y de toda actividad realizada desde su cuenta, liberando a la empresa de cualquier responsabilidad derivada de su uso indebido por terceros.</p>
+          <p><b>4. Tratamiento de datos.</b> 4.1 La empresa recolectará los datos que el Usuario entregue voluntariamente y aquellos que se generen automáticamente por su navegación, incluyendo dirección IP, tipo de dispositivo, ubicación aproximada, páginas visitadas y tiempo de permanencia. 4.2 Dichos datos serán almacenados en servidores propios o de terceros, que podrán encontrarse dentro o fuera del territorio nacional. <span class="clave" data-n="4.3">4.3 Al aceptar, autorizas el tratamiento de tus datos personales para fines comerciales, estadísticos y de marketing, propios o de terceros.</span> 4.4 El Usuario declara haber sido informado de la finalidad del tratamiento y de los derechos que le asisten conforme a la legislación vigente.</p>
+          <p><b>5. Cookies.</b> El sitio utiliza cookies propias y de terceros, técnicas, analíticas, de personalización y publicitarias. La continuación de la navegación se entenderá como consentimiento para su instalación. El Usuario podrá deshabilitarlas desde la configuración de su navegador, lo que podría afectar el correcto funcionamiento del sitio.</p>
+          <p><b>6. Comunicaciones.</b> El Usuario acepta recibir comunicaciones comerciales, promocionales e informativas por correo electrónico, mensajería instantánea, SMS, llamadas telefónicas y notificaciones, tanto de la empresa como de sus Socios, pudiendo solicitar la suspensión de dichos envíos a través de los canales que la empresa disponga para tales efectos.</p>
+          <p><b>7. Transferencia.</b> 7.1 La empresa podrá ceder o transferir la información a terceros en el contexto de fusiones, adquisiciones, reorganizaciones o venta de activos. <span class="clave" data-n="7.2">7.2 Podremos compartir tu correo electrónico, número de teléfono e historial de navegación con socios comerciales, incluidos aquellos ubicados fuera de Chile.</span> 7.3 La empresa no será responsable del tratamiento que dichos terceros realicen conforme a sus propias políticas.</p>
+          <p><b>8. Seguridad.</b> La empresa adoptará medidas razonables para resguardar la información; no obstante, el Usuario reconoce que ningún sistema es completamente seguro y libera a la empresa de responsabilidad por accesos no autorizados, filtraciones, pérdidas o alteraciones de datos causadas por hechos de terceros, caso fortuito o fuerza mayor.</p>
+          <p><b>9. Conservación.</b> <span class="clave" data-n="9.1">9.1 Conservaremos tus datos por el tiempo que estimemos necesario, aun después de cerrada tu cuenta.</span> 9.2 La eliminación de la cuenta no implicará necesariamente la eliminación de los respaldos, registros históricos ni de la información ya compartida con Socios.</p>
+          <p><b>10. Propiedad intelectual.</b> Todos los contenidos del sitio, incluyendo textos, imágenes, logotipos, marcas, diseños y software, son de propiedad de la empresa o de sus licenciantes, quedando prohibida su reproducción, distribución o modificación sin autorización previa y por escrito.</p>
+          <p><b>11. Responsabilidad.</b> La empresa no garantiza la disponibilidad continua ni la ausencia de errores del sitio, y no será responsable por daños directos o indirectos, lucro cesante o daño moral derivados de su uso o de la imposibilidad de utilizarlo, en la máxima medida permitida por la ley.</p>
+          <p><b>12. Modificaciones.</b> 12.1 La empresa podrá suspender, modificar o discontinuar el sitio en cualquier momento. <span class="clave" data-n="12.4">12.4 Podremos modificar estos términos en cualquier momento; el uso continuado del sitio implica tu aceptación.</span> 12.5 Se recomienda al Usuario revisar periódicamente este documento.</p>
+          <p><b>13. Legislación aplicable.</b> Los presentes Términos se rigen por las leyes de la República de Chile. Cualquier controversia será sometida a los tribunales ordinarios de justicia con asiento en la comuna de Santiago, renunciando el Usuario a cualquier otro fuero que pudiera corresponderle.</p>
+        </div>
+        <div class="lupa" id="lupa" aria-hidden="true"></div>
+      </div>
+      <div class="consent">
+        <p id="consentTxt">Para seguir, acepta los términos.</p>
+        <div class="acciones">
+          <button class="btn btn-leer" id="btnLeer" type="button">Leer primero</button>
+          <button class="btn btn-ok" id="btnAceptar" type="button">Aceptar todo</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="veredicto" id="veredicto" aria-live="polite">
+      <p class="dato" id="dato"></p>
+      <ol class="clausulas">
+        <li><span class="num">4.3</span><span class="orig">“Autorizas el tratamiento de tus datos para fines comerciales, propios o de terceros.”</span><span class="trad">Pueden usar tus datos para venderte cosas, ellos u otras empresas.</span></li>
+        <li><span class="num">7.2</span><span class="orig">“Podremos compartir tu correo, teléfono e historial con socios comerciales, incluso fuera de Chile.”</span><span class="trad">Tu correo y tu teléfono pueden terminar en otras empresas, incluso en otros países.</span></li>
+        <li><span class="num">9.1</span><span class="orig">“Conservaremos tus datos aun después de cerrada tu cuenta.”</span><span class="trad">Aunque cierres tu cuenta, tus datos se quedan.</span></li>
+        <li><span class="num">12.4</span><span class="orig">“El uso continuado del sitio implica tu aceptación.”</span><span class="trad">Pueden cambiar las reglas y las aceptas solo por seguir usando el sitio.</span></li>
+      </ol>
+      <p class="tranquilo">Tranquilo: este sitio no hace nada de eso. Los términos son un ejemplo armado con cláusulas típicas.</p>
+      <div class="cierre-hero">
+        <p>FinePrint lee la letra chica por ti y te avisa cuando tus datos terminan donde no deberían.</p>
+        <a class="btn btn-verde" href="#expediente">Ver dónde está mi correo</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- EXPEDIENTE -->
+  <section class="seccion papel" id="expediente">
+    <div class="cont">
+      <h2 class="h2">Tu correo ya aceptó muchos de estos.</h2>
+      <p class="intro">Cada vez que te registras, tu correo queda en otra base de datos. Algunas se filtran. FinePrint te muestra en cuáles estás, qué se expuso y qué hacer primero.</p>
+      <div class="expediente">
+        <form class="campo" id="formExp" novalidate>
+          <label for="correoExp">Escribe un correo</label>
+          <div class="fila-input">
+            <input type="email" id="correoExp" placeholder="nombre@correo.com" autocomplete="off">
+            <button class="btn btn-ok" type="submit">Revisar</button>
+          </div>
+          <p class="aviso-demo">Esta es una demostración con datos de ejemplo. El correo no se guarda ni se envía a ninguna parte. El diagnóstico real llega con el piloto.</p>
+        </form>
+        <div class="folio" id="folio">
+          <p class="folio-vacio" id="folioVacio">Aquí aparece tu expediente: los sitios donde está tu correo, ordenados por riesgo.</p>
+          <div class="folio-cab" id="folioCab">
+            <div class="quien"><small>Expediente de ejemplo</small><span id="quien"></span></div>
+            <div class="puntaje"><b>72</b><span>riesgo sobre 100</span></div>
+          </div>
+          <ul class="registros" id="registros"></ul>
+          <div class="consejo" id="consejo">
+            Lo primero: la contraseña que usabas en la tienda de ropa está expuesta. Cámbiala donde la repitas y pide que borren tus datos.
+            <br><button class="btn btn-ok" type="button" id="btnCarta">Preparar solicitud de borrado</button>
+          </div>
+          <div class="carta" id="carta">
+            <p>Señores Tienda de ropa online:</p>
+            <p>En ejercicio de mis derechos de acceso, rectificación y cancelación establecidos en el artículo 12 de la Ley N° 19.628 sobre protección de la vida privada, solicito que me informen qué datos personales míos mantienen, con quiénes los han compartido, y que eliminen mi correo <span id="correoCarta"></span> y todos los datos asociados de sus registros.</p>
+            <p>Quedo atento a su respuesta.</p>
+            <p class="pie-carta">FinePrint deja la carta lista con el canal correcto de cada empresa. La envías tú, desde tu correo, y te recordamos si no responden.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ALIAS -->
+  <section class="seccion tinta" id="alias">
+    <div class="cont">
+      <h2 class="h2">Un correo distinto para cada tienda.</h2>
+      <p class="intro">Te registras con un alias que llega a tu bandeja de siempre. Si una tienda lo filtra, sabes exactamente cuál fue, y lo cortas sin tocar tu correo real.</p>
+      <div class="maquina">
+        <form class="campo" id="formAlias" novalidate>
+          <label for="tienda">¿Dónde te vas a registrar?</label>
+          <div class="fila-input">
+            <input type="text" id="tienda" placeholder="Ej: tienda de zapatillas" autocomplete="off" maxlength="40">
+            <button class="btn btn-verde" type="submit">Crear alias</button>
+          </div>
+          <p class="aviso-demo">Demostración. En el piloto los alias funcionan de verdad.</p>
+        </form>
+        <div class="ruta" id="ruta">
+          <div class="nodos">
+            <div class="nodo"><small>La tienda escribe a</small><b id="nTienda">la tienda</b></div>
+            <div class="tramo t1"><span class="sobre"></span></div>
+            <div class="nodo alias"><small>Tu alias</small><b id="nAlias">tienda.tu-nombre@fineprint.cl</b></div>
+            <div class="tramo t2"><span class="sobre"></span></div>
+            <div class="nodo bandeja"><small>Y llega a</small><b>tu correo</b></div>
+          </div>
+          <div class="estado-ruta">
+            <p id="estadoRuta">Crea un alias para ver cómo viaja un correo.</p>
+            <button class="btn btn-cortar" type="button" id="btnCortar" hidden>Cortar este alias</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CLÁUSULA ÚNICA -->
+  <section class="seccion" id="unica">
+    <div class="cont unica">
+      <p class="rotulo">Nuestros términos, completos:</p>
+      <blockquote>No podemos borrarte de todo internet. Te mostramos dónde están tus datos, te avisamos cuando algo cambia y te dejamos lista la solicitud para que cada empresa los borre.</blockquote>
+      <p class="firma">Eso es todo. Sin letra chica.</p>
+    </div>
+  </section>
+
+
+  <!-- RESERVA -->
+  <section class="seccion papel" id="reserva">
+    <div class="cont">
+      <h2 class="h2">Reserva tu cupo en el piloto.</h2>
+      <div class="reserva">
+        <div>
+          <div class="precio" id="precio">$2.990 <small>al mes</small></div>
+          <ul class="condiciones">
+            <li>No se cobra nada hoy.</li>
+            <li>14 días de piloto: diagnóstico, avisos y 5 alias.</li>
+            <li>Al final decides si sigues a este precio.</li>
+          </ul>
+        </div>
+        <form class="formulario" id="formReserva" novalidate>
+          <div id="campos">
+            <div class="campo">
+              <label for="email">Tu correo</label>
+              <input type="email" id="email" name="correo" placeholder="nombre@correo.com" autocomplete="email">
+            </div>
+            <div class="campo">
+              <label for="edad">Tu edad</label>
+              <select id="edad" name="edad">
+                <option value="">Elige un rango</option>
+                <option>18 a 29</option>
+                <option>30 a 39</option>
+                <option>40 a 49</option>
+                <option>50 a 65</option>
+                <option>Más de 65</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>¿Alguna vez te hackearon una cuenta, te estafaron por internet o te avisaron de una filtración?</label>
+              <div class="opciones">
+                <label><input type="radio" name="incidente" value="si"> Sí</label>
+                <label><input type="radio" name="incidente" value="no"> No</label>
+              </div>
+            </div>
+            <label class="permiso"><input type="checkbox" id="permiso"> Acepto que FinePrint me escriba sobre el piloto. Usan mi correo solo para esto y puedo pedir que lo borren cuando quiera.</label>
+            <input type="hidden" name="precio_mostrado" id="precio_mostrado">
+            <input type="hidden" name="variante" id="variante">
+            <input type="hidden" name="acepto_sin_leer" id="acepto_sin_leer">
+            <input type="hidden" name="origen" id="origen">
+            <div class="linea-firma">Firma: tu correo, y nada más.</div>
+            <button class="btn btn-verde" type="submit" id="btnReservar">Reservar mi cupo</button>
+            <div class="error" id="error"></div>
+          </div>
+          <div class="listo" id="listo">
+            <span class="timbre-listo">Reservado</span>
+            <p>Te escribimos en los próximos días para partir con el piloto.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="cont">
+    <span>FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo. Los datos que aparecen en esta página son inventados.</span>
+    <span>Contacto: <a href="mailto:CORREO_DE_CONTACTO">CORREO_DE_CONTACTO</a></span>
+  </div>
+</footer>
+
+<script>
+  // ===== CONFIGURACIÓN =====
+  var FORM_ENDPOINT = "";                        // link de Formspree, ej: https://formspree.io/f/abcd1234
+  var PRECIOS = { a: "$2.990", b: "$9.990" };    // los dos precios que se prueban
+  // ==========================
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var inicio = performance.now();
+
+  /* ---------- Lupa ---------- */
+  var wrap = document.getElementById("chicaWrap");
+  var chica = document.getElementById("chica");
+  var lupa = document.getElementById("lupa");
+  var ZOOM = 2.4, R = 115;
+  var copia = chica.cloneNode(true);
+  copia.removeAttribute("id");
+  lupa.appendChild(copia);
+  function ajustarCopia() { copia.style.width = chica.offsetWidth + "px"; copia.style.transform = "scale(" + ZOOM + ")"; }
+  ajustarCopia();
+  window.addEventListener("resize", ajustarCopia);
+  wrap.addEventListener("mousemove", function (e) {
+    if (document.body.classList.contains("aceptado")) return;
+    var r = wrap.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    lupa.style.left = (x - R) + "px";
+    lupa.style.top = (y - R) + "px";
+    copia.style.left = (-(x * ZOOM) + R) + "px";
+    copia.style.top = (-(y * ZOOM) + R) + "px";
+    lupa.classList.add("on");
+  });
+  wrap.addEventListener("mouseleave", function () { lupa.classList.remove("on"); });
+
+  /* ---------- Aceptar / leer ---------- */
+  var palabras = chica.textContent.trim().split(/\s+/).length;
+  var minutos = Math.max(1, Math.round(palabras / 230));
+  var aceptoSinLeer = "";
+
+  function veredicto(sinLeer) {
+    var seg = (performance.now() - inicio) / 1000;
+    var segTxt = seg < 60 ? seg.toFixed(1).replace(".", ",") + " segundos" : Math.round(seg / 60) + " minutos";
+    aceptoSinLeer = sinLeer ? "si" : "no";
+    document.body.classList.add("aceptado");
+    document.getElementById("consentTxt").textContent = sinLeer ? "Términos aceptados sin leer." : "Términos leídos por FinePrint.";
+    if (typeof rafaga === "function") setTimeout(rafaga, 350);
+    lupa.classList.remove("on");
+    document.getElementById("titular").textContent = sinLeer ? "Aceptaste en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
+    document.getElementById("bajada").textContent = sinLeer
+      ? "Sin leer. Como casi todos, casi siempre."
+      : "Leer esto completo no es realista cada vez que te registras en algo.";
+    document.getElementById("dato").textContent = "El texto tiene " + palabras.toLocaleString("es-CL") + " palabras y leerlo toma unos " + minutos + " minutos. Estas son las cuatro cláusulas que importan, en simple:";
+    var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
+    window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
+  }
+  document.getElementById("btnAceptar").addEventListener("click", function () { veredicto(true); });
+  document.getElementById("btnLeer").addEventListener("click", function () { veredicto(false); });
+
+  /* ---------- Expediente (demo) ---------- */
+  var REGISTROS = [
+    { sitio: "Tienda de ropa online", anio: "2023", que: "Correo, contraseña y dirección" },
+    { sitio: "Sitio de concursos", anio: "2021", que: "Correo, RUT y fecha de nacimiento" },
+    { sitio: "App de delivery", anio: "2024", que: "Correo y teléfono" },
+    { sitio: "Foro de recetas", anio: "2019", que: "Correo y contraseña antigua" }
+  ];
+  document.getElementById("formExp").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var correo = document.getElementById("correoExp").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { document.getElementById("correoExp").focus(); return; }
+    document.getElementById("folioVacio").style.display = "none";
+    document.getElementById("folioCab").style.display = "flex";
+    document.getElementById("quien").textContent = correo;
+    document.getElementById("correoCarta").textContent = correo;
+    var ul = document.getElementById("registros");
+    ul.innerHTML = "";
+    REGISTROS.forEach(function (r, i) {
+      var li = document.createElement("li");
+      li.style.setProperty("--d", (i * 0.18) + "s");
+      li.innerHTML = '<span class="sitio"></span><span class="anio"></span><span class="que"></span>';
+      li.querySelector(".sitio").textContent = r.sitio;
+      li.querySelector(".anio").textContent = r.anio;
+      li.querySelector(".que").textContent = r.que;
+      ul.appendChild(li);
+    });
+    document.getElementById("consejo").style.display = "block";
+    document.getElementById("carta").style.display = "none";
+  });
+  document.getElementById("btnCarta").addEventListener("click", function () {
+    document.getElementById("carta").style.display = "block";
+  });
+
+  /* ---------- Alias (demo) ---------- */
+  var ruta = document.getElementById("ruta");
+  var btnCortar = document.getElementById("btnCortar");
+  function slug(t) {
+    return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 20) || "tienda";
+  }
+  document.getElementById("formAlias").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var t = document.getElementById("tienda").value.trim() || "tienda de zapatillas";
+    var codigo = Math.random().toString(36).slice(2, 6);
+    document.getElementById("nTienda").textContent = t;
+    document.getElementById("nAlias").textContent = slug(t) + "." + codigo + "@fineprint.cl";
+    ruta.classList.remove("cortado", "envio");
+    void ruta.offsetWidth;
+    ruta.classList.add("envio");
+    document.getElementById("estadoRuta").textContent = "Listo. Te registras con este alias y los correos de " + t + " llegan a tu bandeja como siempre.";
+    btnCortar.hidden = false;
+    btnCortar.textContent = "Cortar este alias";
+  });
+  btnCortar.addEventListener("click", function () {
+    var cortado = ruta.classList.toggle("cortado");
+    ruta.classList.remove("envio");
+    document.getElementById("estadoRuta").textContent = cortado
+      ? "Alias cortado. Lo que mande " + document.getElementById("nTienda").textContent + " ya no te llega, y tu correo real sigue intacto."
+      : "Alias activo de nuevo.";
+    btnCortar.textContent = cortado ? "Reactivar alias" : "Cortar este alias";
+  });
+
+  /* ---------- Río de datos (todo inventado y tapado a medias) ---------- */
+  var NOMBRES = ["camila", "matias", "valentina", "benjamin", "fernanda", "tomas", "josefa", "vicente", "catalina", "joaquin", "antonia", "martin", "isidora", "agustin", "florencia", "maximiliano"];
+  var APELLIDOS = ["rojas", "munoz", "soto", "contreras", "silva", "morales", "araya", "fuentes", "valenzuela", "espinoza", "tapia", "reyes", "pizarro", "carrasco"];
+  var CALLES = ["Av. Los Leones", "Pasaje Las Acacias", "Calle Ñuble", "Av. Irarrázaval", "Calle Lautaro", "Av. Grecia", "Pasaje El Roble"];
+  var COMUNAS = ["Providencia", "Ñuñoa", "Maipú", "La Florida", "Puente Alto", "Viña del Mar", "Concepción", "Temuco"];
+  var DOMINIOS = ["gmail.com", "hotmail.com", "outlook.com", "yahoo.es"];
+  var COMPRAS = ["Zapatillas talla 42", "Pañales etapa 3", "Pasaje Santiago–Calama", "Seguro automotriz", "Crédito de consumo", "Plan de celular"];
+  function al(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function dig(n) { var s = ""; for (var i = 0; i < n; i++) s += Math.floor(Math.random() * 10); return s; }
+  var FABRICAS = [
+    function () { var n = al(NOMBRES), a = al(APELLIDOS); return n.charAt(0) + "." + a.slice(0, 3) + "•••@" + al(DOMINIOS); },
+    function () { return "+56 9 •••• " + dig(4); },
+    function () { return "RUT " + (10 + Math.floor(Math.random() * 15)) + "." + dig(3) + ".•••-" + al(["1","2","3","4","5","6","7","8","9","K"]); },
+    function () { return al(CALLES) + " " + dig(1) + "•••, " + al(COMUNAS); },
+    function () { return "Visa •••• " + dig(4); },
+    function () { var n = al(NOMBRES); return n.charAt(0).toUpperCase() + n.slice(1) + " " + al(APELLIDOS).charAt(0).toUpperCase() + "., " + (19 + Math.floor(Math.random() * 45)) + " años"; },
+    function () { return "Compró: " + al(COMPRAS); },
+    function () { return "Nació el " + (1 + Math.floor(Math.random() * 28)) + "/" + (1 + Math.floor(Math.random() * 12)) + "/19••"; },
+    function () { return "Clave: " + al(["camila", "colo", "chile", "123", "pass", "tomas"]) + "•••" + dig(2); }
+  ];
+  var cielo = document.getElementById("cielo");
+  var notaCielo = document.getElementById("notaCielo");
+  var movil = window.matchMedia("(max-width: 700px)").matches;
+  var MAX_EN_VUELO = movil ? 12 : 24;
+  // en "Nuestros términos" y en la reserva no vuela nada: ahí no hay letra chica
+  var zonasCalma = new Set();
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (en) { if (en.isIntersecting) zonasCalma.add(en.target.id); else zonasCalma.delete(en.target.id); });
+      var calma = zonasCalma.size > 0;
+      cielo.classList.toggle("calma", calma);
+      notaCielo.classList.toggle("on", !calma && cielo.childElementCount > 0);
+    }, { threshold: 0.35 });
+    ["unica", "reserva"].forEach(function (id) { obs.observe(document.getElementById(id)); });
+  }
+  var PROF = [ // lejos, medio, cerca
+    { esc: .72, op: .38, blur: 1.8, dur: 2600 },
+    { esc: .95, op: .7,  blur: .5,  dur: 1700 },
+    { esc: 1.18, op: .95, blur: 0,  dur: 950 }
+  ];
+  function textoDato() { return al(FABRICAS)(); }
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function volar(desde) {
+    if (reduce || zonasCalma.size > 0 || cielo.childElementCount >= MAX_EN_VUELO) return;
+    var el = document.createElement("span");
+    var tipo = Math.random();
+    var d = desde ? (Math.random() < .6 ? 2 : 1) : Math.floor(Math.random() * 3);
+    var p = PROF[d];
+    if (tipo < .12) { el.className = "vuela fuga"; el.textContent = "Filtrado: " + textoDato(); }
+    else if (tipo < .26) { el.className = "vuela tachado"; el.textContent = textoDato(); }
+    else if (tipo < .44 && d > 0) { el.className = "vuela grande"; el.textContent = textoDato(); }
+    else { el.className = "vuela"; el.textContent = textoDato(); }
+    if (p.blur) el.style.filter = "blur(" + p.blur + "px)";
+    cielo.appendChild(el);
+    var w = el.offsetWidth * p.esc, h = el.offsetHeight * p.esc;
+    var W = innerWidth, H = innerHeight;
+    var x0, y0, x1, y1;
+    if (desde) {
+      var ang = rnd(0, Math.PI * 2), lejos = Math.max(W, H) + 300;
+      x0 = desde.x - w / 2; y0 = desde.y - h / 2;
+      x1 = x0 + Math.cos(ang) * lejos; y1 = y0 + Math.sin(ang) * lejos;
+    } else if (Math.random() < .7) {           // de lado a lado
+      var izq = Math.random() < .5;
+      x0 = izq ? -w - 60 : W + 60; x1 = izq ? W + 60 : -w - 60;
+      y0 = rnd(-40, H); y1 = y0 + rnd(-H * .5, H * .5);
+    } else {                                   // de arriba abajo, cruzado
+      var arriba = Math.random() < .5;
+      y0 = arriba ? -h - 60 : H + 60; y1 = arriba ? H + 60 : -h - 60;
+      x0 = rnd(0, W); x1 = x0 + rnd(-W * .6, W * .6);
+    }
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1;
+    var nx = -dy / len, ny = dx / len;          // perpendicular para la curva
+    var ondaA = rnd(-180, 180), ondaB = rnd(-180, 180);
+    var r0 = rnd(-25, 25), r1 = r0 + rnd(-60, 60);
+    function pt(t, onda, r) {
+      return "translate(" + (x0 + dx * t + nx * onda) + "px," + (y0 + dy * t + ny * onda) + "px) rotate(" + r + "deg) scale(" + p.esc + ")";
+    }
+    var dur = (desde ? 1100 : p.dur) * rnd(.8, 1.25);
+    var anim = el.animate([
+      { transform: pt(0, 0, r0), opacity: 0 },
+      { transform: pt(.12, ondaA * .4, r0), opacity: p.op, offset: .12 },
+      { transform: pt(.4, ondaA, (r0 + r1) / 2), opacity: p.op, offset: .4 },
+      { transform: pt(.72, ondaB, r1), opacity: p.op, offset: .72 },
+      { transform: pt(1, 0, r1 + rnd(-20, 20)), opacity: desde ? 0 : p.op }
+    ], { duration: dur, easing: desde ? "cubic-bezier(.15,.7,.3,1)" : "linear" });
+    anim.onfinish = function () { el.remove(); };
+    if (!notaCielo.classList.contains("on")) notaCielo.classList.add("on");
+  }
+
+  // explosión desde el documento al aceptar
+  function rafaga() {
+    if (reduce) return;
+    var r = document.getElementById("hoja").getBoundingClientRect();
+    for (var i = 0; i < (movil ? 10 : 20); i++) {
+      (function (k) {
+        setTimeout(function () {
+          volar({ x: r.left + rnd(r.width * .2, r.width * .8), y: r.top + rnd(r.height * .2, r.height * .7) });
+        }, k * 45);
+      })(i);
+    }
+  }
+
+  // mientras más bajas, más datos vuelan
+  var ultimoY = scrollY, acumulado = 0;
+  function activo() { return document.body.classList.contains("aceptado") || scrollY > 280; }
+  function escribiendo() { var a = document.activeElement; return a && /INPUT|SELECT|TEXTAREA/.test(a.tagName); }
+  addEventListener("scroll", function () {
+    var dy = Math.abs(scrollY - ultimoY); ultimoY = scrollY;
+    if (!activo() || escribiendo()) return;
+    acumulado += dy;
+    while (acumulado > (movil ? 120 : 70)) { acumulado -= (movil ? 120 : 70); volar(); }
+  }, { passive: true });
+  // y aunque no bajes, siempre se escapa alguno
+  setInterval(function () {
+    if (activo() && !escribiendo() && document.visibilityState === "visible") volar();
+  }, movil ? 1100 : 600);
+
+  /* ---------- Reserva con dos precios ---------- */
+  var params = new URLSearchParams(location.search);
+  var v = params.get("precio");
+  if (v !== "a" && v !== "b") { try { v = localStorage.getItem("fp_variante"); } catch (e) { v = null; } }
+  if (v !== "a" && v !== "b") { v = Math.random() < 0.5 ? "a" : "b"; }
+  try { localStorage.setItem("fp_variante", v); } catch (e) {}
+  document.getElementById("precio").innerHTML = PRECIOS[v] + " <small>al mes</small>";
+  document.getElementById("precio_mostrado").value = PRECIOS[v];
+  document.getElementById("variante").value = v;
+  document.getElementById("origen").value = params.get("utm_source") || document.referrer || "directo";
+  if (!FORM_ENDPOINT) document.getElementById("testbar").classList.add("on");
+
+  var form = document.getElementById("formReserva");
+  var errorBox = document.getElementById("error");
+  function error(msg) { errorBox.textContent = msg; errorBox.style.display = "block"; }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    errorBox.style.display = "none";
+    var email = document.getElementById("email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return error("Revisa tu correo: falta la @ o el dominio.");
+    if (!document.getElementById("edad").value) return error("Elige tu rango de edad.");
+    if (!form.querySelector("input[name=incidente]:checked")) return error("Responde si te ha pasado algo así.");
+    if (!document.getElementById("permiso").checked) return error("Marca el permiso para que podamos escribirte.");
+    document.getElementById("acepto_sin_leer").value = aceptoSinLeer || "no hizo clic";
+    var btn = document.getElementById("btnReservar");
+    btn.disabled = true; btn.textContent = "Reservando...";
+    function ok() { document.getElementById("campos").style.display = "none"; document.getElementById("listo").style.display = "block"; }
+    if (!FORM_ENDPOINT) { console.log("Modo prueba:", Object.fromEntries(new FormData(form))); ok(); return; }
+    fetch(FORM_ENDPOINT, { method: "POST", body: new FormData(form), headers: { "Accept": "application/json" } })
+      .then(function (r) { if (r.ok) ok(); else throw new Error(); })
+      .catch(function () { btn.disabled = false; btn.textContent = "Reservar mi cupo"; error("No se pudo reservar. Revisa tu conexión e intenta de nuevo."); });
+  });
+</script>
+</body>
+</html>
