@@ -58,7 +58,7 @@ Para probar en local: copiar `.dev.vars.example` a `.dev.vars`, completarlo y co
 
 ### Opción B: Vercel
 
-Conectar este repo a Vercel. `api/registro.js` ya trae `export const config = { runtime: 'edge' }`, así que se despliega solo. Cargar las mismas variables en *Project Settings → Environment Variables*. En este caso se puede dejar `REGISTRO_ENDPOINT = ""`, porque la página usa `/api/registro`.
+Conectar este repo a Vercel y cargar las mismas variables en *Project Settings → Environment Variables*. En este caso se puede dejar `REGISTRO_ENDPOINT = ""`, porque la página usa `/api/registro`. El archivo trae `export const config = { runtime: 'edge' }`; para Vercel hay que cambiar el `export default` por la función `handle` directamente (en Cloudflare se usa el objeto con `fetch()`).
 
 GitHub Pages solo sirve archivos estáticos: no puede ejecutar la función. Si la web queda en Pages, hay que usar la Opción A y pegar la URL del worker.
 

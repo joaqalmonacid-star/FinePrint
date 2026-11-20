@@ -1,6 +1,8 @@
 name = "fineprint-registro"
 main = "api/registro.js"
 compatibility_date = "2026-11-20"
+workers_dev = true
+preview_urls = false
 
 # Los secretos NO van aquí. Se cargan con:
 #   wrangler secret put BREVO_API_KEY

@@ -1,6 +1,6 @@
 // FinePrint · registro de reservas -> Brevo
-// Handler portable (Request/Response estándar): funciona como Cloudflare Worker
-// y como Vercel Edge Function. La API key NUNCA va en el navegador.
+// Handler portable (Request/Response estándar) desplegado como Cloudflare Worker.
+// La API key NUNCA va en el navegador.
 
 export const config = { runtime: 'edge' };
 
@@ -43,7 +43,7 @@ async function enviar(headers, payload) {
   }
 }
 
-export default async function handler(request, env) {
+async function handle(request, env) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (request.method !== 'POST') return json({ ok: false, error: 'Método no permitido' }, 405);
 
@@ -163,3 +163,9 @@ export default async function handler(request, env) {
     error: warnings.length ? 'El registro se guardó pero falló un correo: ' + warnings.join(' | ') : undefined,
   });
 }
+
+export default {
+  fetch(request, env) {
+    return handle(request, env);
+  },
+};
