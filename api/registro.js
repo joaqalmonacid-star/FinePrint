@@ -1,6 +1,9 @@
-// FinePrint · registro de reservas -> Brevo
-// Handler portable (Request/Response estándar) desplegado como Cloudflare Worker.
+// FinePrint · web estática + registro de reservas -> Brevo
+// Un solo worker sirve index.html, registro.html y procesa el formulario.
 // La API key NUNCA va en el navegador.
+
+import indexHtml from '../index.html';
+import registroHtml from '../registro.html';
 
 export const config = { runtime: 'edge' };
 
@@ -45,6 +48,16 @@ async function enviar(headers, payload) {
 
 async function handle(request, env) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
+  if (request.method === 'GET' || request.method === 'HEAD') {
+    const path = new URL(request.url).pathname.replace(/\/+$/, '') || '/';
+    const html = path === '/' || path === '/index.html' ? indexHtml
+      : path === '/registro' || path === '/registro.html' ? registroHtml : null;
+    if (!html) return json({ ok: false, error: 'Página no encontrada' }, 404);
+    return new Response(request.method === 'HEAD' ? null : html, {
+      status: 200,
+      headers: { ...CORS, 'Content-Type': 'text/html; charset=utf-8' },
+    });
+  }
   if (request.method !== 'POST') return json({ ok: false, error: 'Método no permitido' }, 405);
 
   let d;

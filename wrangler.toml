@@ -4,6 +4,11 @@ compatibility_date = "2026-11-20"
 workers_dev = true
 preview_urls = false
 
+# Permite importar los HTML como texto dentro del worker.
+rules = [
+  { type = "Text", globs = ["**/*.html"], fallthrough = true }
+]
+
 # Los secretos NO van aquí. Se cargan con:
 #   wrangler secret put BREVO_API_KEY
 #   wrangler secret put BREVO_SENDER_EMAIL

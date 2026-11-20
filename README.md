@@ -60,24 +60,32 @@ Para probar en local: copiar `.dev.vars.example` a `.dev.vars`, completarlo y co
 
 Conectar este repo a Vercel y cargar las mismas variables en *Project Settings → Environment Variables*. En este caso se puede dejar `REGISTRO_ENDPOINT = ""`, porque la página usa `/api/registro`. El archivo trae `export const config = { runtime: 'edge' }`; para Vercel hay que cambiar el `export default` por la función `handle` directamente (en Cloudflare se usa el objeto con `fetch()`).
 
-GitHub Pages solo sirve archivos estáticos: no puede ejecutar la función. Si la web queda en Pages, hay que usar la Opción A y pegar la URL del worker.
+Con el esquema actual no hace falta GitHub Pages: el worker sirve también los dos HTML. Si se publicaran en Pages, el formulario seguiría funcionando porque apunta al worker por URL absoluta.
 
 ## Estado actual
 
-El worker de registro ya está desplegado y probado con un registro real:
+El worker ya está desplegado y probado en:
 
 `https://fineprint-registro.joaq-almonacid.workers.dev`
 
-`registro.html` ya apunta a esa URL. El worker responde con CORS `*`, así que funciona desde cualquier dominio: no hay que cambiar nada al publicar la web en tu Cloudflare.
+Ese worker hace todo junto: `GET /` sirve `index.html`, `GET /registro.html` sirve el formulario y `POST` guarda el registro en Brevo y envía los dos correos. Se verificó un registro real con `{"ok":true}`.
 
-### Publicar la web en tu URL de Cloudflare
+### Publicar en tu URL de Cloudflare
 
-Subir **solo** `index.html` y `registro.html`. No subir `.dev.vars`: contiene la API key. Está ignorado por Git y excluido por `.workersignore` / `.pagesignore`, pero conviene verificar que tu herramienta de deploy no lo incluya. Además, la URL debe servir `registro.html` como archivo propio, no redirigirlo a `index.html`.
+Tu URL es `fineprint.joaq-almonacid.workers.dev`. Desde esta carpeta, con el código actual de GitHub:
+
+```bash
+wrangler deploy --name fineprint
+```
+
+O cambiar `name = "fineprint-registro"` por `name = "fineprint"` en `wrangler.toml` y correr `wrangler deploy`. Al abrir la URL debe aparecer la web; `/registro.html` debe mostrar el formulario. Si sale un JSON con «Método no permitido», significa que ese worker todavía tiene la versión anterior del código.
+
+No subir `.dev.vars`: contiene la API key. Está ignorado por Git y excluido por `.workersignore` / `.pagesignore`, pero conviene verificar que tu herramienta de deploy no lo incluya.
 
 Si rotas la key en Brevo, actualizar el secreto sin tocar el código:
 
 ```bash
-wrangler secret put BREVO_API_KEY
+wrangler secret put BREVO_API_KEY --name fineprint-registro
 ```
 
 ## Antes de publicar
