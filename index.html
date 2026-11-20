@@ -132,7 +132,8 @@
   .campo input, .campo select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--linea); border-radius: 8px; background: #fff; }
   .campo input:focus, .campo select:focus { border-color: var(--tinta); outline: none; }
   .fila-input { display: flex; gap: 10px; }
-  .fila-input input { flex: 1; min-width: 0; }
+  .fila-input input, .fila-input select { flex: 1; min-width: 0; }
+  .aviso-demo a { color: inherit; text-decoration: underline; }
   .aviso-demo { font-size: 14px; color: var(--gris); margin-top: 12px; }
   .folio { background: var(--papel); border: 1px solid var(--linea); border-radius: 3px; min-height: 360px; padding: 32px 36px; position: relative; }
   .folio-vacio { font-family: var(--serif); font-size: 21px; color: var(--chica); max-width: 30ch; }
@@ -331,28 +332,32 @@
       <p class="intro">Cada vez que te registras, tu correo queda en otra base de datos. Algunas se filtran. FinePrint te muestra en cuáles estás, qué se expuso y qué hacer primero.</p>
       <div class="expediente">
         <form class="campo" id="formExp" novalidate>
-          <label for="correoExp">Escribe un correo</label>
+          <label for="correoExp">Elige un correo de prueba</label>
           <div class="fila-input">
-            <input type="email" id="correoExp" placeholder="nombre@correo.com" autocomplete="off">
+            <select id="correoExp">
+              <option value="multiple-breaches@hibp-integration-tests.com">multiple-breaches (3 brechas)</option>
+              <option value="account-exists@hibp-integration-tests.com">account-exists (1 brecha)</option>
+              <option value="sensitive-and-other-breaches@hibp-integration-tests.com">sensitive-and-other-breaches (2 brechas)</option>
+            </select>
             <button class="btn btn-ok" type="submit">Revisar</button>
           </div>
-          <p class="aviso-demo">Esta es una demostración con datos de ejemplo. El correo no se guarda ni se envía a ninguna parte. El diagnóstico real llega con el piloto.</p>
+          <p class="aviso-demo">Conectado a <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a>: usamos correos de prueba de su dominio de integración. Las brechas son reales, pero no pertenecen a nadie acá. Tu correo no se consulta.</p>
         </form>
         <div class="folio" id="folio">
           <p class="folio-vacio" id="folioVacio">Aquí aparece tu expediente: los sitios donde está tu correo, ordenados por riesgo.</p>
-          <p class="folio-demo" id="folioDemo"><strong>Datos de ejemplo, no reales.</strong> Esto es solo una vista previa de cómo se vería tu diagnóstico: no consultamos bases de datos ni verificamos tu correo. Los resultados reales llegan con el piloto.</p>
+          <p class="folio-demo" id="folioDemo"><strong>Correo de prueba, datos reales.</strong> Estas brechas vienen de Have I Been Pwned y corresponden a un correo de su dominio de integración, no al tuyo. Nadie ingresó este correo acá.</p>
           <div class="folio-cab" id="folioCab">
-            <div class="quien"><small>Expediente de ejemplo</small><span id="quien"></span></div>
-            <div class="puntaje"><b>72</b><span>riesgo sobre 100</span></div>
+            <div class="quien"><small>Consulta de prueba en HIBP</small><span id="quien"></span></div>
+            <div class="puntaje"><b id="puntajeNum">72</b><span>riesgo sobre 100</span></div>
           </div>
           <ul class="registros" id="registros"></ul>
           <div class="consejo" id="consejo">
-            Lo primero: la contraseña que usabas en la tienda de ropa está expuesta. Cámbiala donde la repitas y pide que borren tus datos.
+            <span id="consejoTexto">Lo primero: revisa tus contraseñas y pide que borren tus datos.</span>
             <br><button class="btn btn-ok" type="button" id="btnCarta">Preparar solicitud de borrado</button>
             <p class="fin-datos" id="finDatos">Los mensajes se detuvieron. Eso es lo que pasaría si la empresa borrara tus datos: dejarían de llegarte avisos y spam.</p>
           </div>
           <div class="carta" id="carta">
-            <p>Señores Tienda de ropa online:</p>
+            <p>Señores <span id="cartaEmpresa">Tienda de ropa online</span>:</p>
             <p>En ejercicio de mis derechos de acceso, rectificación y cancelación establecidos en el artículo 12 de la Ley N° 19.628 sobre protección de la vida privada, solicito que me informen qué datos personales míos mantienen, con quiénes los han compartido, y que eliminen mi correo <span id="correoCarta"></span> y todos los datos asociados de sus registros.</p>
             <p>Quedo atento a su respuesta.</p>
             <p class="pie-carta">FinePrint deja la carta lista con el canal correcto de cada empresa. La envías tú, desde tu correo, y te recordamos si no responden.</p>
@@ -522,34 +527,67 @@
   document.getElementById("btnLeer").addEventListener("click", function () { veredicto(false); });
 
   /* ---------- Expediente (demo) ---------- */
-  var REGISTROS = [
-    { sitio: "Tienda de ropa online", anio: "2023", que: "Correo, contraseña y dirección" },
-    { sitio: "Sitio de concursos", anio: "2021", que: "Correo, RUT y fecha de nacimiento" },
-    { sitio: "App de delivery", anio: "2024", que: "Correo y teléfono" },
-    { sitio: "Foro de recetas", anio: "2019", que: "Correo y contraseña antigua" }
+  var CORREOS_PRUEBA = [
+    "multiple-breaches@hibp-integration-tests.com",
+    "account-exists@hibp-integration-tests.com",
+    "sensitive-and-other-breaches@hibp-integration-tests.com"
   ];
-  document.getElementById("formExp").addEventListener("submit", function (e) {
+  var formExp = document.getElementById("formExp");
+  formExp.addEventListener("submit", async function (e) {
     e.preventDefault();
-    var correo = document.getElementById("correoExp").value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { document.getElementById("correoExp").focus(); return; }
-    document.getElementById("folioVacio").style.display = "none";
-    document.getElementById("folioDemo").style.display = "block";
-    document.getElementById("folioCab").style.display = "flex";
-    document.getElementById("quien").textContent = correo;
-    document.getElementById("correoCarta").textContent = correo;
-    var ul = document.getElementById("registros");
-    ul.innerHTML = "";
-    REGISTROS.forEach(function (r, i) {
-      var li = document.createElement("li");
-      li.style.setProperty("--d", (i * 0.18) + "s");
-      li.innerHTML = '<span class="sitio"></span><span class="anio"></span><span class="que"></span>';
-      li.querySelector(".sitio").textContent = r.sitio;
-      li.querySelector(".anio").textContent = r.anio;
-      li.querySelector(".que").textContent = r.que;
-      ul.appendChild(li);
-    });
-    document.getElementById("consejo").style.display = "block";
-    document.getElementById("carta").style.display = "none";
+    var correo = document.getElementById("correoExp").value;
+    if (CORREOS_PRUEBA.indexOf(correo) === -1) return;
+    var btn = formExp.querySelector("button[type=submit]");
+    var textoBtn = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Consultando...";
+    var vacio = document.getElementById("folioVacio");
+    vacio.textContent = "Consultando Have I Been Pwned...";
+    vacio.style.display = "block";
+    document.getElementById("folioDemo").style.display = "none";
+    document.getElementById("folioCab").style.display = "none";
+    document.getElementById("consejo").style.display = "none";
+    document.getElementById("registros").innerHTML = "";
+    try {
+      var res = await fetch("/api/diagnostico?correo=" + encodeURIComponent(correo));
+      var data = await res.json();
+      if (!data.ok) throw new Error(data.error || "No se pudo consultar");
+      var brechas = data.brechas || [];
+      vacio.style.display = "none";
+      document.getElementById("folioDemo").style.display = "block";
+      document.getElementById("folioCab").style.display = "flex";
+      document.getElementById("quien").textContent = correo;
+      document.getElementById("correoCarta").textContent = correo;
+      document.getElementById("puntajeNum").textContent = brechas.length ? Math.min(99, 30 + brechas.length * 15) : 5;
+      var ul = document.getElementById("registros");
+      ul.innerHTML = "";
+      brechas.forEach(function (b, i) {
+        var li = document.createElement("li");
+        li.style.setProperty("--d", (i * 0.18) + "s");
+        li.innerHTML = '<span class="sitio"></span><span class="anio"></span><span class="que"></span>';
+        li.querySelector(".sitio").textContent = b.nombre;
+        li.querySelector(".anio").textContent = b.anio;
+        li.querySelector(".que").textContent = b.datos;
+        ul.appendChild(li);
+      });
+      if (!brechas.length) {
+        var li = document.createElement("li");
+        li.innerHTML = '<span class="sitio">Sin brechas públicas</span><span class="anio"></span><span class="que">HIBP no encontró este correo en filtraciones públicas.</span>';
+        ul.appendChild(li);
+      }
+      document.getElementById("consejoTexto").textContent = brechas.length
+        ? "Lo primero: aparece en " + brechas[0].nombre + " (" + brechas[0].anio + "). Revisa dónde repetiste la contraseña y pide que borren tus datos."
+        : "Sin resultados públicos. Aun así, revisa tus contraseñas y usa alias distintos.";
+      document.getElementById("cartaEmpresa").textContent = brechas.length ? brechas[0].sitio : "la empresa";
+      document.getElementById("consejo").style.display = "block";
+      document.getElementById("carta").style.display = "none";
+    } catch (err) {
+      vacio.textContent = "No pudimos consultar HIBP. Intenta de nuevo.";
+      vacio.style.display = "block";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = textoBtn;
+    }
   });
   document.getElementById("btnCarta").addEventListener("click", function () {
     document.getElementById("carta").style.display = "block";
