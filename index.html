@@ -145,6 +145,7 @@
   @keyframes destachar { to { transform: scaleX(0); } }
   .consejo { display: none; margin-top: 22px; font-family: var(--serif); font-size: 20px; line-height: 1.4; }
   .consejo .btn { margin-top: 16px; font-family: var(--sans); }
+  .fin-datos { display: none; margin-top: 16px; font-family: var(--sans); font-size: 14px; line-height: 1.5; font-weight: 600; color: var(--timbre-d); }
   .carta { display: none; margin-top: 24px; background: #fff; border: 1px dashed var(--chica); padding: 26px 28px; font-family: var(--serif); font-size: 17px; line-height: 1.6; }
   .carta p + p { margin-top: 10px; }
   .carta .pie-carta { font-family: var(--sans); font-size: 14px; color: var(--gris); margin-top: 16px; }
@@ -203,7 +204,7 @@
 
   /* datos que vuelan por la página */
   .cielo { position: fixed; inset: 0; z-index: 50; pointer-events: none; overflow: hidden; transition: opacity .6s; }
-  .cielo.calma { opacity: 0; }
+  .cielo.calma, .cielo.detenido { opacity: 0; }
   .vuela { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform, opacity; font-family: var(--sans); font-size: 14px; font-weight: 600; padding: 6px 13px; border-radius: 999px; background: var(--papel); color: var(--tinta); border: 1px solid var(--linea); box-shadow: 0 8px 18px -10px rgba(16,17,20,.45); }
   .vuela.fuga { background: var(--resaltador); border-color: var(--resaltador); }
   .vuela.tachado { background: var(--tinta); color: var(--papel); border-color: var(--tinta); border-radius: 2px; }
@@ -339,6 +340,7 @@
           <div class="consejo" id="consejo">
             Lo primero: la contraseña que usabas en la tienda de ropa está expuesta. Cámbiala donde la repitas y pide que borren tus datos.
             <br><button class="btn btn-ok" type="button" id="btnCarta">Preparar solicitud de borrado</button>
+            <p class="fin-datos" id="finDatos">Los mensajes se detuvieron. Eso es lo que pasaría si la empresa borrara tus datos: dejarían de llegarte avisos y spam.</p>
           </div>
           <div class="carta" id="carta">
             <p>Señores Tienda de ropa online:</p>
@@ -522,6 +524,10 @@
   });
   document.getElementById("btnCarta").addEventListener("click", function () {
     document.getElementById("carta").style.display = "block";
+    if (typeof detenerDatos === "function") detenerDatos();
+    this.textContent = "Solicitud lista";
+    this.disabled = true;
+    document.getElementById("finDatos").style.display = "block";
   });
 
   /* ---------- Alias (demo) ---------- */
@@ -574,12 +580,14 @@
   ];
   var cielo = document.getElementById("cielo");
   var notaCielo = document.getElementById("notaCielo");
+  var borrando = false;
   var movil = window.matchMedia("(max-width: 700px)").matches;
   var MAX_EN_VUELO = movil ? 12 : 24;
   // en "Nuestros términos" y en la reserva no vuela nada: ahí no hay letra chica
   var zonasCalma = new Set();
   if ("IntersectionObserver" in window) {
     var obs = new IntersectionObserver(function (entradas) {
+      if (borrando) { notaCielo.classList.remove("on"); return; }
       entradas.forEach(function (en) { if (en.isIntersecting) zonasCalma.add(en.target.id); else zonasCalma.delete(en.target.id); });
       var calma = zonasCalma.size > 0;
       cielo.classList.toggle("calma", calma);
@@ -596,7 +604,7 @@
   function rnd(a, b) { return a + Math.random() * (b - a); }
 
   function volar(desde) {
-    if (reduce || zonasCalma.size > 0 || cielo.childElementCount >= MAX_EN_VUELO) return;
+    if (borrando || reduce || zonasCalma.size > 0 || cielo.childElementCount >= MAX_EN_VUELO) return;
     var el = document.createElement("span");
     var tipo = Math.random();
     var d = desde ? (Math.random() < .6 ? 2 : 1) : Math.floor(Math.random() * 3);
@@ -640,6 +648,17 @@
     ], { duration: dur, easing: desde ? "cubic-bezier(.15,.7,.3,1)" : "linear" });
     anim.onfinish = function () { el.remove(); };
     if (!notaCielo.classList.contains("on")) notaCielo.classList.add("on");
+  }
+
+  // al pedir el borrado se corta el río de datos: es el efecto "se acabó el spam"
+  function detenerDatos() {
+    borrando = true;
+    cielo.classList.add("detenido");
+    cielo.classList.remove("calma");
+    notaCielo.classList.remove("on");
+    setTimeout(function () {
+      while (cielo.firstChild) cielo.removeChild(cielo.firstChild);
+    }, 800);
   }
 
   // explosión desde el documento al aceptar
