@@ -62,6 +62,24 @@ Conectar este repo a Vercel y cargar las mismas variables en *Project Settings �
 
 GitHub Pages solo sirve archivos estáticos: no puede ejecutar la función. Si la web queda en Pages, hay que usar la Opción A y pegar la URL del worker.
 
+## Estado actual
+
+El worker de registro ya está desplegado y probado con un registro real:
+
+`https://fineprint-registro.joaq-almonacid.workers.dev`
+
+`registro.html` ya apunta a esa URL. El worker responde con CORS `*`, así que funciona desde cualquier dominio: no hay que cambiar nada al publicar la web en tu Cloudflare.
+
+### Publicar la web en tu URL de Cloudflare
+
+Subir **solo** `index.html` y `registro.html`. No subir `.dev.vars`: contiene la API key. Está ignorado por Git y excluido por `.workersignore` / `.pagesignore`, pero conviene verificar que tu herramienta de deploy no lo incluya. Además, la URL debe servir `registro.html` como archivo propio, no redirigirlo a `index.html`.
+
+Si rotas la key en Brevo, actualizar el secreto sin tocar el código:
+
+```bash
+wrangler secret put BREVO_API_KEY
+```
+
 ## Antes de publicar
 
 1. Verificar el remitente en Brevo (*Senders & Domains*).
