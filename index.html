@@ -40,6 +40,17 @@
   .hero-cta { margin-top: 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
   .hero-cta .btn { padding: 16px 28px; font-size: 18px; border-radius: 999px; box-shadow: 0 14px 28px -14px rgba(10,132,73,.95); }
   .hero-cta small { color: var(--gris); font-size: 14px; }
+
+  /* perfilado: elige qué cláusulas se resaltan */
+  .perfil { margin-top: 26px; padding: 18px 20px; border: 1.5px solid var(--linea); border-radius: 10px; background: rgba(251,252,253,.72); }
+  .perfil-tit { font-family: var(--serif); font-size: 19px; margin-bottom: 12px; }
+  .perfil-preg { margin-top: 12px; }
+  .perfil-preg > span { display: block; font-size: 13px; color: var(--gris); margin-bottom: 8px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { border: 1.5px solid var(--linea); background: transparent; border-radius: 999px; padding: 7px 12px; font-size: 13px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .chip:hover { border-color: var(--tinta); }
+  .chip[aria-pressed="true"] { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+  .perfil-ayuda { margin-top: 12px; font-size: 13px; color: var(--gris); }
   .cta-fija { position: fixed; bottom: 0; left: 0; right: 0; z-index: 70; background: var(--tinta); color: var(--papel); display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 24px; box-shadow: 0 -12px 30px -20px rgba(0,0,0,.7); }
   .cta-fija span { font-size: 14px; color: #C9D1DA; }
   .cta-fija .btn-cta { padding: 10px 18px; }
@@ -60,9 +71,22 @@
   .chica-wrap { position: relative; height: 340px; overflow: hidden; margin: 14px 36px 0; cursor: none; }
   .chica-wrap::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(to bottom, rgba(251,252,253,0), var(--papel)); pointer-events: none; }
   .chica { font-family: var(--serif); font-size: 9.5px; line-height: 1.42; color: var(--chica); text-align: justify; hyphens: auto; }
-  .chica p { margin-bottom: 5px; }
+  .chica p { margin-bottom: 5px; transition: opacity .25s, background .25s; }
   .chica b { color: var(--gris); font-weight: 600; }
-  .clave { transition: color .3s; }
+  #chica p.relevante { background: rgba(61,220,132,.16); box-shadow: inset 3px 0 var(--resaltador); padding: 6px 9px; margin-left: -9px; border-radius: 2px; }
+  #chica p.atenuada { opacity: .3; }
+
+  /* "Leer primero" abre el documento en tamaño normal */
+  .hoja.abierto .chica-wrap { height: auto; overflow: visible; cursor: default; padding-bottom: 8px; }
+  .hoja.abierto .chica-wrap::after { display: none; }
+  .hoja.abierto .chica { font-size: 15px; line-height: 1.62; color: var(--tinta); }
+  .hoja.abierto .chica p { margin-bottom: 16px; }
+  .hoja.abierto .chica b { color: var(--tinta); }
+  .hoja.abierto .pista, .hoja.abierto .lupa { display: none; }
+
+  /* cláusulas importantes, marcadas dentro del texto */
+  .clave { background-image: linear-gradient(rgba(61,220,132,.55), rgba(61,220,132,.55)); background-repeat: no-repeat; background-size: 100% 100%; color: var(--tinta); padding: 0 2px; transition: background .3s; }
+  .clave::before { content: "!"; display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 700; color: var(--papel); background: var(--timbre); border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; margin-right: 4px; vertical-align: 1px; }
 
   /* lupa */
   .lupa { position: absolute; width: 230px; height: 230px; border-radius: 50%; overflow: hidden; pointer-events: none; background: var(--papel); border: 2px solid var(--tinta); box-shadow: 0 14px 30px -12px rgba(16,17,20,.45); opacity: 0; transform: scale(.85); transition: opacity .15s, transform .15s; z-index: 3; }
@@ -87,9 +111,9 @@
   .aceptado .timbre { animation: timbrar .45s cubic-bezier(.2,.9,.3,1.3) forwards; }
   @keyframes timbrar { to { opacity: .92; transform: rotate(-9deg) scale(1); } }
   .aceptado .chica-wrap { cursor: default; }
-  .aceptado .clave { color: var(--tinta); background-image: linear-gradient(var(--resaltador), var(--resaltador)); background-repeat: no-repeat; background-size: 0% 100%; animation: resaltar .6s ease-out forwards; }
-  .aceptado .clave:nth-of-type(1) { animation-delay: .5s; }
-  @keyframes resaltar { to { background-size: 100% 100%; } }
+  .aceptado .clave { background-image: linear-gradient(var(--resaltador), var(--resaltador)); animation: clavePulso .7s ease-out; }
+  .aceptado .clave::before { background: var(--resaltador); color: var(--tinta); }
+  @keyframes clavePulso { 50% { box-shadow: 0 0 0 6px rgba(61,220,132,.35); } }
 
   .veredicto { display: none; max-width: 760px; margin-top: 40px; }
   .aceptado .veredicto { display: block; }
@@ -101,6 +125,8 @@
   .aceptado .clausulas li:nth-child(2) { animation-delay: 1.15s; }
   .aceptado .clausulas li:nth-child(3) { animation-delay: 1.4s; }
   .aceptado .clausulas li:nth-child(4) { animation-delay: 1.65s; }
+  .clausulas li.fuera-perfil { opacity: .18 !important; }
+  .clausulas li.relevante { box-shadow: inset 3px 0 var(--resaltador); padding-left: 12px; }
   @keyframes aparecer { to { opacity: 1; transform: none; } }
   .clausulas .num { font-family: var(--serif); font-size: 22px; color: var(--timbre-d); grid-row: span 2; }
   .clausulas .orig { font-family: var(--serif); font-size: 15px; color: var(--chica); font-style: italic; }
@@ -146,18 +172,30 @@
   .puntaje b { font-family: var(--serif); font-size: 56px; font-weight: 500; line-height: 1; }
   .puntaje span { font-size: 14px; color: var(--gris); display: block; }
   .registros { list-style: none; }
-  .registros li { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 0; border-bottom: 1px solid var(--linea); position: relative; }
-  .registros .sitio { font-weight: 600; }
+  .registros li { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 5px 16px; padding: 16px 0; border-bottom: 1px solid var(--linea); position: relative; align-items: start; }
+  .registros .r-cab { min-width: 0; }
+  .registros .sitio { display: block; font-weight: 600; }
+  .registros .url { display: block; font-size: 13px; color: var(--gris); overflow-wrap: anywhere; }
   .registros .anio { color: var(--gris); font-size: 15px; text-align: right; }
   .registros .que { grid-column: 1 / -1; font-size: 15px; color: var(--gris); }
+  .registros .riesgo { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+  .riesgo-num { font-family: var(--serif); font-size: 28px; font-weight: 600; line-height: 1; }
+  .barra-riesgo { width: 76px; height: 7px; background: var(--linea); border-radius: 999px; overflow: hidden; }
+  .barra-riesgo i { display: block; height: 100%; width: var(--ancho); background: var(--color); border-radius: 999px; }
+  .etiqueta-riesgo { font-size: 12px; color: var(--gris); min-width: 54px; }
+  .riesgo small { display: block; font-size: 11px; color: var(--gris); text-align: right; }
   .registros li::after { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; background: var(--tinta); width: 100%; transform-origin: right; animation: destachar .55s ease-in-out forwards; animation-delay: var(--d); }
   @keyframes destachar { to { transform: scaleX(0); } }
   .consejo { display: none; margin-top: 22px; font-family: var(--serif); font-size: 20px; line-height: 1.4; }
-  .consejo .btn { margin-top: 16px; font-family: var(--sans); }
+  .acciones-borrado { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 16px; }
+  .acciones-borrado .btn { margin-top: 0; }
   .fin-datos { display: none; margin-top: 16px; font-family: var(--sans); font-size: 14px; line-height: 1.5; font-weight: 600; color: var(--timbre-d); }
   .carta { display: none; margin-top: 24px; background: #fff; border: 1px dashed var(--chica); padding: 26px 28px; font-family: var(--serif); font-size: 17px; line-height: 1.6; }
   .carta p + p { margin-top: 10px; }
   .carta .pie-carta { font-family: var(--sans); font-size: 14px; color: var(--gris); margin-top: 16px; }
+  .acciones-carta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .acciones-carta .btn { font-family: var(--sans); font-size: 14px; padding: 11px 16px; }
+  .carta .nota-envio { font-family: var(--sans); font-size: 13px; color: var(--gris); margin-top: 10px; }
 
   /* alias */
   .maquina { margin-top: 52px; display: grid; grid-template-columns: 360px 1fr; gap: 56px; align-items: start; }
@@ -224,13 +262,11 @@
   .btn-ok.absorbiendo { animation: iman .75s ease-out; }
   @keyframes iman { 0%, 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } 45% { box-shadow: 0 0 0 12px rgba(61,220,132,.42); } }
 
-  /* el gran cartel aparece debajo de la nota de demostración, sin tapar el formulario ni el expediente */
-  .gran-final { display: none; margin-top: 26px; pointer-events: none; }
+  /* el gran cartel aparece al lado del botón "Solicitud lista", a la altura del expediente */
+  .gran-final { display: none; flex: 1 1 320px; min-width: 0; margin-top: 0; }
   .gran-final.on { display: block; animation: finalIn .5s cubic-bezier(.2,.8,.2,1) both; }
-  .gran-final-inner { width: 100%; }
-  .gran-final .kicker { display: inline-block; font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta); background: var(--resaltador); padding: 6px 11px; border-radius: 999px; }
-  .gran-final strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(34px, 3.6vw, 52px); line-height: .98; letter-spacing: -1.5px; margin: 12px 0; }
-  .gran-final p { font-family: var(--serif); font-size: clamp(16px, 1.5vw, 19px); line-height: 1.32; max-width: 34ch; }
+  .gran-final strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 3.2vw, 44px); line-height: .98; letter-spacing: -1.2px; margin: 2px 0 6px; }
+  .gran-final p { font-family: var(--serif); font-size: 16px; line-height: 1.32; max-width: 40ch; }
   .gran-final p b { color: var(--timbre-d); font-weight: 600; }
 
   /* aviso al entregar el correo: otra trampa aceptada */
@@ -262,9 +298,13 @@
     .clausulas li { grid-template-columns: 44px 1fr; }
     .vuela { font-size: 12px; }
     .vuela.grande { font-size: 22px; }
-    .gran-final { margin-top: 22px; }
-    .gran-final strong { font-size: clamp(32px, 8vw, 46px); letter-spacing: -1.2px; }
-    .gran-final p { font-size: 17px; max-width: 34ch; }
+    .acciones-borrado { align-items: flex-start; flex-direction: column; gap: 14px; }
+    .gran-final { flex-basis: 100%; }
+    .gran-final strong { font-size: clamp(30px, 8vw, 40px); }
+    .gran-final p { font-size: 15px; max-width: 36ch; }
+    .registros li { grid-template-columns: minmax(0,1fr) auto; }
+    .registros .riesgo { grid-column: 2; }
+    .barra-riesgo { width: 52px; }
   }
   @media (hover: none) { .chica-wrap { cursor: default; } .lupa, .pista { display: none; } }
   @media (prefers-reduced-motion: reduce) {
@@ -293,6 +333,29 @@
       <a class="btn btn-verde js-cta" href="registro.html">Reservar mi cupo</a>
       <small>Sin cobro hoy · 14 días de piloto · primer cobro el día 19 · cupos limitados</small>
     </div>
+
+    <div class="perfil" id="perfil">
+      <p class="perfil-tit">Antes de leer: dinos qué te importa.</p>
+      <div class="perfil-preg">
+        <span>1. ¿Qué te preocupa más?</span>
+        <div class="chips" role="group" aria-label="Temas que te preocupan">
+          <button class="chip" type="button" data-tema="claves" aria-pressed="false">Contraseñas</button>
+          <button class="chip" type="button" data-tema="dinero" aria-pressed="false">Tarjetas y dinero</button>
+          <button class="chip" type="button" data-tema="identidad" aria-pressed="false">RUT y clave única</button>
+          <button class="chip" type="button" data-tema="ubicacion" aria-pressed="false">Ubicación</button>
+          <button class="chip" type="button" data-tema="publicidad" aria-pressed="false">Publicidad</button>
+        </div>
+      </div>
+      <div class="perfil-preg">
+        <span>2. ¿Qué quieres lograr?</span>
+        <div class="chips" role="group" aria-label="Objetivo con tus datos">
+          <button class="chip" type="button" data-tema="avisos" aria-pressed="false">Que me avisen</button>
+          <button class="chip" type="button" data-tema="borrado" aria-pressed="false">Que los borren</button>
+          <button class="chip" type="button" data-tema="todo" aria-pressed="false">Ver todo</button>
+        </div>
+      </div>
+      <p class="perfil-ayuda" id="perfilAyuda">Marcamos en el documento las cláusulas que más te afectan. Puedes elegir varias.</p>
+    </div>
     </div>
 
     <div class="hoja" id="hoja">
@@ -304,26 +367,26 @@
       <div class="chica-wrap" id="chicaWrap">
         <span class="pista" aria-hidden="true">Pasa el cursor para leer</span>
         <div class="chica" id="chica">
-          <p><b>1. Aceptación.</b> El acceso y uso de este sitio, sus aplicaciones, servicios, contenidos y funcionalidades, presentes o futuras, implica la aceptación plena y sin reservas de los presentes Términos y Condiciones, así como de la Política de Privacidad, la Política de Cookies y cualquier otro documento que los complemente, modifique o reemplace. Si no estás de acuerdo con alguno de ellos, deberás abstenerte de utilizar el sitio.</p>
-          <p><b>2. Definiciones.</b> Para efectos del presente instrumento, se entenderá por “Usuario” a toda persona natural o jurídica que acceda al sitio; por “Datos Personales” a cualquier información concerniente a personas naturales identificadas o identificables; por “Socios” a las sociedades relacionadas, filiales, coligadas, proveedores, contratistas y aliados comerciales, nacionales o extranjeros, con quienes la empresa mantenga vínculos de cualquier naturaleza.</p>
-          <p><b>3. Registro.</b> Para acceder a determinadas funcionalidades el Usuario deberá completar un formulario de registro, entregando información veraz, exacta y actualizada. El Usuario es el único responsable de la custodia de su clave y de toda actividad realizada desde su cuenta, liberando a la empresa de cualquier responsabilidad derivada de su uso indebido por terceros.</p>
-          <p><b>4. Tratamiento de datos.</b> 4.1 La empresa recolectará los datos que el Usuario entregue voluntariamente y aquellos que se generen automáticamente por su navegación, incluyendo dirección IP, tipo de dispositivo, ubicación aproximada, páginas visitadas y tiempo de permanencia. 4.2 Dichos datos serán almacenados en servidores propios o de terceros, que podrán encontrarse dentro o fuera del territorio nacional. <span class="clave" data-n="4.3">4.3 Al aceptar, autorizas el tratamiento de tus datos personales para fines comerciales, estadísticos y de marketing, propios o de terceros.</span> 4.4 El Usuario declara haber sido informado de la finalidad del tratamiento y de los derechos que le asisten conforme a la legislación vigente.</p>
-          <p><b>5. Cookies.</b> El sitio utiliza cookies propias y de terceros, técnicas, analíticas, de personalización y publicitarias. La continuación de la navegación se entenderá como consentimiento para su instalación. El Usuario podrá deshabilitarlas desde la configuración de su navegador, lo que podría afectar el correcto funcionamiento del sitio.</p>
-          <p><b>6. Comunicaciones.</b> El Usuario acepta recibir comunicaciones comerciales, promocionales e informativas por correo electrónico, mensajería instantánea, SMS, llamadas telefónicas y notificaciones, tanto de la empresa como de sus Socios, pudiendo solicitar la suspensión de dichos envíos a través de los canales que la empresa disponga para tales efectos.</p>
-          <p><b>7. Transferencia.</b> 7.1 La empresa podrá ceder o transferir la información a terceros en el contexto de fusiones, adquisiciones, reorganizaciones o venta de activos. <span class="clave" data-n="7.2">7.2 Podremos compartir tu correo electrónico, número de teléfono e historial de navegación con socios comerciales, incluidos aquellos ubicados fuera de Chile.</span> 7.3 La empresa no será responsable del tratamiento que dichos terceros realicen conforme a sus propias políticas.</p>
-          <p><b>8. Seguridad.</b> La empresa adoptará medidas razonables para resguardar la información; no obstante, el Usuario reconoce que ningún sistema es completamente seguro y libera a la empresa de responsabilidad por accesos no autorizados, filtraciones, pérdidas o alteraciones de datos causadas por hechos de terceros, caso fortuito o fuerza mayor.</p>
-          <p><b>9. Conservación.</b> <span class="clave" data-n="9.1">9.1 Conservaremos tus datos por el tiempo que estimemos necesario, aun después de cerrada tu cuenta.</span> 9.2 La eliminación de la cuenta no implicará necesariamente la eliminación de los respaldos, registros históricos ni de la información ya compartida con Socios.</p>
+          <p data-temas="borrado"><b>1. Aceptación.</b> El acceso y uso de este sitio, sus aplicaciones, servicios, contenidos y funcionalidades, presentes o futuras, implica la aceptación plena y sin reservas de los presentes Términos y Condiciones, así como de la Política de Privacidad, la Política de Cookies y cualquier otro documento que los complemente, modifique o reemplace. Si no estás de acuerdo con alguno de ellos, deberás abstenerte de utilizar el sitio.</p>
+          <p data-temas="identidad"><b>2. Definiciones.</b> Para efectos del presente instrumento, se entenderá por “Usuario” a toda persona natural o jurídica que acceda al sitio; por “Datos Personales” a cualquier información concerniente a personas naturales identificadas o identificables; por “Socios” a las sociedades relacionadas, filiales, coligadas, proveedores, contratistas y aliados comerciales, nacionales o extranjeros, con quienes la empresa mantenga vínculos de cualquier naturaleza.</p>
+          <p data-temas="claves"><b>3. Registro.</b> Para acceder a determinadas funcionalidades el Usuario deberá completar un formulario de registro, entregando información veraz, exacta y actualizada. El Usuario es el único responsable de la custodia de su clave y de toda actividad realizada desde su cuenta, liberando a la empresa de cualquier responsabilidad derivada de su uso indebido por terceros.</p>
+          <p data-temas="publicidad avisos ubicacion"><b>4. Tratamiento de datos.</b> 4.1 La empresa recolectará los datos que el Usuario entregue voluntariamente y aquellos que se generen automáticamente por su navegación, incluyendo dirección IP, tipo de dispositivo, ubicación aproximada, páginas visitadas y tiempo de permanencia. 4.2 Dichos datos serán almacenados en servidores propios o de terceros, que podrán encontrarse dentro o fuera del territorio nacional. <span class="clave" data-n="4.3">4.3 Al aceptar, autorizas el tratamiento de tus datos personales para fines comerciales, estadísticos y de marketing, propios o de terceros.</span> 4.4 El Usuario declara haber sido informado de la finalidad del tratamiento y de los derechos que le asisten conforme a la legislación vigente.</p>
+          <p data-temas="ubicacion publicidad"><b>5. Cookies.</b> El sitio utiliza cookies propias y de terceros, técnicas, analíticas, de personalización y publicitarias. La continuación de la navegación se entenderá como consentimiento para su instalación. El Usuario podrá deshabilitarlas desde la configuración de su navegador, lo que podría afectar el correcto funcionamiento del sitio.</p>
+          <p data-temas="publicidad avisos"><b>6. Comunicaciones.</b> El Usuario acepta recibir comunicaciones comerciales, promocionales e informativas por correo electrónico, mensajería instantánea, SMS, llamadas telefónicas y notificaciones, tanto de la empresa como de sus Socios, pudiendo solicitar la suspensión de dichos envíos a través de los canales que la empresa disponga para tales efectos.</p>
+          <p data-temas="publicidad dinero identidad"><b>7. Transferencia.</b> 7.1 La empresa podrá ceder o transferir la información a terceros en el contexto de fusiones, adquisiciones, reorganizaciones o venta de activos. <span class="clave" data-n="7.2">7.2 Podremos compartir tu correo electrónico, número de teléfono e historial de navegación con socios comerciales, incluidos aquellos ubicados fuera de Chile.</span> 7.3 La empresa no será responsable del tratamiento que dichos terceros realicen conforme a sus propias políticas.</p>
+          <p data-temas="claves dinero identidad borrado"><b>8. Seguridad.</b> La empresa adoptará medidas razonables para resguardar la información; no obstante, el Usuario reconoce que ningún sistema es completamente seguro y libera a la empresa de responsabilidad por accesos no autorizados, filtraciones, pérdidas o alteraciones de datos causadas por hechos de terceros, caso fortuito o fuerza mayor.</p>
+          <p data-temas="borrado"><b>9. Conservación.</b> <span class="clave" data-n="9.1">9.1 Conservaremos tus datos por el tiempo que estimemos necesario, aun después de cerrada tu cuenta.</span> 9.2 La eliminación de la cuenta no implicará necesariamente la eliminación de los respaldos, registros históricos ni de la información ya compartida con Socios.</p>
           <p><b>10. Propiedad intelectual.</b> Todos los contenidos del sitio, incluyendo textos, imágenes, logotipos, marcas, diseños y software, son de propiedad de la empresa o de sus licenciantes, quedando prohibida su reproducción, distribución o modificación sin autorización previa y por escrito.</p>
           <p><b>11. Responsabilidad.</b> La empresa no garantiza la disponibilidad continua ni la ausencia de errores del sitio, y no será responsable por daños directos o indirectos, lucro cesante o daño moral derivados de su uso o de la imposibilidad de utilizarlo, en la máxima medida permitida por la ley.</p>
-          <p><b>12. Modificaciones.</b> 12.1 La empresa podrá suspender, modificar o discontinuar el sitio en cualquier momento. <span class="clave" data-n="12.4">12.4 Podremos modificar estos términos en cualquier momento; el uso continuado del sitio implica tu aceptación.</span> 12.5 Se recomienda al Usuario revisar periódicamente este documento.</p>
-          <p><b>13. Legislación aplicable.</b> Los presentes Términos se rigen por las leyes de la República de Chile. Cualquier controversia será sometida a los tribunales ordinarios de justicia con asiento en la comuna de Santiago, renunciando el Usuario a cualquier otro fuero que pudiera corresponderle.</p>
+          <p data-temas="avisos borrado"><b>12. Modificaciones.</b> 12.1 La empresa podrá suspender, modificar o discontinuar el sitio en cualquier momento. <span class="clave" data-n="12.4">12.4 Podremos modificar estos términos en cualquier momento; el uso continuado del sitio implica tu aceptación.</span> 12.5 Se recomienda al Usuario revisar periódicamente este documento.</p>
+          <p data-temas="borrado"><b>13. Legislación aplicable.</b> Los presentes Términos se rigen por las leyes de la República de Chile. Cualquier controversia será sometida a los tribunales ordinarios de justicia con asiento en la comuna de Santiago, renunciando el Usuario a cualquier otro fuero que pudiera corresponderle.</p>
         </div>
         <div class="lupa" id="lupa" aria-hidden="true"></div>
       </div>
       <div class="consent">
         <p id="consentTxt">Para seguir, acepta los términos.</p>
         <div class="acciones">
-          <button class="btn btn-leer" id="btnLeer" type="button">Leer primero</button>
+          <button class="btn btn-leer" id="btnLeer" type="button" aria-expanded="false" aria-controls="chicaWrap">Leer primero</button>
           <button class="btn btn-ok" id="btnAceptar" type="button">Aceptar todo</button>
         </div>
       </div>
@@ -333,10 +396,10 @@
     <div class="veredicto" id="veredicto" aria-live="polite">
       <p class="dato" id="dato"></p>
       <ol class="clausulas">
-        <li><span class="num">4.3</span><span class="orig">“Autorizas el tratamiento de tus datos para fines comerciales, propios o de terceros.”</span><span class="trad">Pueden usar tus datos para venderte cosas, ellos u otras empresas.</span></li>
-        <li><span class="num">7.2</span><span class="orig">“Podremos compartir tu correo, teléfono e historial con socios comerciales, incluso fuera de Chile.”</span><span class="trad">Tu correo y tu teléfono pueden terminar en otras empresas, incluso en otros países.</span></li>
-        <li><span class="num">9.1</span><span class="orig">“Conservaremos tus datos aun después de cerrada tu cuenta.”</span><span class="trad">Aunque cierres tu cuenta, tus datos se quedan.</span></li>
-        <li><span class="num">12.4</span><span class="orig">“El uso continuado del sitio implica tu aceptación.”</span><span class="trad">Pueden cambiar las reglas y las aceptas solo por seguir usando el sitio.</span></li>
+        <li data-temas="publicidad avisos"><span class="num">4.3</span><span class="orig">“Autorizas el tratamiento de tus datos para fines comerciales, propios o de terceros.”</span><span class="trad">Se vende acceso a inferencias sobre ti que no puedes ver ni corregir.</span></li>
+        <li data-temas="publicidad dinero identidad"><span class="num">7.2</span><span class="orig">“Podremos compartir tu correo, teléfono e historial con socios comerciales, incluso fuera de Chile.”</span><span class="trad">Tu correo y tu teléfono pueden terminar en otras empresas, incluso en otros países.</span></li>
+        <li data-temas="borrado"><span class="num">9.1</span><span class="orig">“Conservaremos tus datos aun después de cerrada tu cuenta.”</span><span class="trad">Aunque cierres tu cuenta, tus datos se quedan.</span></li>
+        <li data-temas="avisos borrado"><span class="num">12.4</span><span class="orig">“El uso continuado del sitio implica tu aceptación.”</span><span class="trad">Pueden cambiar las reglas y las aceptas solo por seguir usando el sitio.</span></li>
       </ol>
       <p class="tranquilo">Tranquilo: este sitio no hace nada de eso. Los términos son un ejemplo armado con cláusulas típicas.</p>
       <div class="cierre-hero">
@@ -359,14 +422,7 @@
             <input type="email" id="correoExp" placeholder="nombre@correo.com" autocomplete="off" maxlength="254">
             <button class="btn btn-ok" type="submit">Revisar</button>
           </div>
-          <p class="aviso-demo">Esta es una demostración con datos de ejemplo. El correo no se guarda ni se envía a ninguna parte. El diagnóstico real llega con el piloto.</p>
-          <div class="gran-final" id="granFinal" aria-hidden="true">
-            <div class="gran-final-inner">
-              <span class="kicker">Solicitud lista</span>
-              <strong>Se detuvieron.</strong>
-              <p>Los mensajes dejaron de volar. <b>Eso es lo que pasaría si la empresa borrara tus datos</b>: dejarían de llegarte avisos y spam.</p>
-            </div>
-          </div>
+          <p class="aviso-demo">Demostración con sitios reales y datos ilustrativos. El correo no se guarda ni se envía a ninguna parte. El diagnóstico real llega con el piloto.</p>
         </form>
         <div class="folio" id="folio">
           <div class="trampa" id="trampa" aria-live="polite">
@@ -374,7 +430,7 @@
             <p id="trampaTexto">Aceptaste los términos sin leerlos y ahora dejaste tu correo acá. Los datos de abajo son inventados, pero la dinámica es la misma.</p>
           </div>
           <p class="folio-vacio" id="folioVacio">Aquí aparece tu expediente: los sitios donde está tu correo, ordenados por riesgo.</p>
-          <p class="folio-demo" id="folioDemo"><strong>Datos de ejemplo, no reales.</strong> Esto es solo una vista previa de cómo se vería tu diagnóstico: no consultamos bases de datos ni verificamos tu correo. Los resultados reales llegan con el piloto.</p>
+          <p class="folio-demo" id="folioDemo"><strong>Sitios reales, datos e incidentes ilustrativos.</strong> Esto no acusa a ninguna empresa de una filtración: es una vista previa del formato del diagnóstico, con ejemplos de datos que esos sitios pueden almacenar. No consultamos bases de datos ni verificamos tu correo.</p>
           <div class="folio-cab" id="folioCab">
             <div class="quien"><small>Expediente de ejemplo</small><span id="quien"></span></div>
             <div class="puntaje"><b id="puntajeNum">72</b><span>riesgo sobre 100</span></div>
@@ -382,14 +438,25 @@
           <ul class="registros" id="registros"></ul>
           <div class="consejo" id="consejo">
             <span id="consejoTexto">Lo primero: revisa tus contraseñas y pide que borren tus datos.</span>
-            <br><button class="btn btn-ok" type="button" id="btnCarta">Preparar solicitud de borrado</button>
+            <div class="acciones-borrado">
+              <button class="btn btn-ok" type="button" id="btnCarta">Preparar solicitud de borrado</button>
+              <div class="gran-final" id="granFinal" aria-hidden="true" aria-live="polite">
+                <strong>Se detuvieron.</strong>
+                <p>Los mensajes dejaron de volar. <b>Eso es lo que pasaría si la empresa borrara tus datos</b>: dejarían de llegarte avisos y spam.</p>
+              </div>
+            </div>
             <p class="fin-datos" id="finDatos">Los mensajes se detuvieron. Eso es lo que pasaría si la empresa borrara tus datos: dejarían de llegarte avisos y spam.</p>
           </div>
           <div class="carta" id="carta">
-            <p>Señores <span id="cartaEmpresa">Tienda de ropa online</span>:</p>
+            <p>Señores <span id="cartaEmpresa">Amazon (amazon.com)</span>:</p>
             <p>En ejercicio de mis derechos de acceso, rectificación, supresión y oposición (Ley N° 19.628, art. 12), y de los derechos de portabilidad y bloqueo temporal que reconoce la Ley N° 21.719 desde el 15 de octubre de 2027, solicito que me informen qué datos personales míos mantienen y con quiénes los compartieron, que eliminen mi correo <span id="correoCarta"></span> y todos los datos asociados de sus registros, y que bloqueen temporalmente su tratamiento mientras se resuelve.</p>
-            <p>Si no responden o deniegan la solicitud, podré reclamar ante la Agencia de Protección de Datos Personales (ARCOP). Quedo atento a su respuesta.</p>
-            <p class="pie-carta">FinePrint deja la carta lista con el canal correcto de cada empresa. La envías tú, desde tu correo, y te recordamos si no responden.</p>
+            <p>Si no responden o deniegan la solicitud, podré reclamar ante la Agencia de Protección de Datos Personales (ARCOP) una vez que esa ley esté vigente. Quedo atento a su respuesta.</p>
+            <div class="acciones-carta">
+              <a class="btn btn-verde" id="btnEnviar" href="mailto:?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos%20personales">Enviar correo →</a>
+              <a class="btn btn-leer" href="proceso.html" target="_blank" rel="noopener">Ver proceso →</a>
+            </div>
+            <p class="nota-envio">El asunto y el texto ya van listos. Agrega el correo de privacidad de la empresa antes de enviar.</p>
+            <p class="pie-carta">FinePrint deja la solicitud lista. La envías tú, desde tu correo; después puedes seguir cada hito en la página «Ver proceso».</p>
           </div>
         </div>
       </div>
@@ -493,7 +560,7 @@
 
 <footer>
   <div class="cont">
-    <span>FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo. Los datos que aparecen en esta página son inventados.</span>
+    <span>FinePrint es un proyecto del New Ventures Program, Universidad del Desarrollo. Los datos de esta demostración son ilustrativos; los sitios son reales.</span>
     <span>Contacto: <a href="mailto:administracionfineprint@gmail.com">administracionfineprint@gmail.com</a></span>
   </div>
 </footer>
@@ -530,6 +597,58 @@
   });
   wrap.addEventListener("mouseleave", function () { lupa.classList.remove("on"); });
 
+  /* ---------- Perfilado: qué cláusulas se resaltan ---------- */
+  var temasActivos = new Set();
+  var chips = document.querySelectorAll(".chip[data-tema]");
+  var parrafosPerfil = document.querySelectorAll("#chica p[data-temas]");
+  var resumenPerfil = document.querySelectorAll(".clausulas li[data-temas]");
+  function toca(temas) { return temas.some(function (t) { return temasActivos.has(t); }); }
+  function sincronizarCopia() {
+    lupa.innerHTML = "";
+    copia = chica.cloneNode(true);
+    copia.removeAttribute("id");
+    lupa.appendChild(copia);
+    ajustarCopia();
+  }
+  function aplicarPerfil() {
+    var filtrando = temasActivos.size > 0 && !temasActivos.has("todo");
+    var resaltadas = 0;
+    parrafosPerfil.forEach(function (p) {
+      var temas = p.getAttribute("data-temas").split(/\s+/);
+      var visible = !filtrando || toca(temas);
+      p.classList.toggle("atenuada", filtrando && !visible);
+      p.classList.toggle("relevante", filtrando && visible);
+      if (filtrando && visible) resaltadas++;
+    });
+    resumenPerfil.forEach(function (li) {
+      var temas = li.getAttribute("data-temas").split(/\s+/);
+      var visible = !filtrando || toca(temas);
+      li.classList.toggle("fuera-perfil", filtrando && !visible);
+      li.classList.toggle("relevante", filtrando && visible);
+    });
+    chips.forEach(function (b) { b.setAttribute("aria-pressed", temasActivos.has(b.getAttribute("data-tema")) ? "true" : "false"); });
+    var nombres = Array.prototype.map.call(document.querySelectorAll(".chip[aria-pressed='true']"), function (b) { return b.textContent.toLowerCase(); });
+    document.getElementById("perfilAyuda").textContent = !filtrando
+      ? "Sin filtro: verás los términos completos. Elige un tema para resaltar solo lo que te afecta."
+      : "Resaltamos " + resaltadas + " cláusulas por " + nombres.join(", ") + ". Las demás quedan tenues.";
+    sincronizarCopia();
+  }
+  chips.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var tema = b.getAttribute("data-tema");
+      if (tema === "todo") {
+        var ya = temasActivos.has("todo");
+        temasActivos.clear();
+        if (!ya) temasActivos.add("todo");
+      } else {
+        temasActivos.delete("todo");
+        if (temasActivos.has(tema)) temasActivos.delete(tema); else temasActivos.add(tema);
+      }
+      aplicarPerfil();
+    });
+  });
+  aplicarPerfil();
+
   /* ---------- Aceptar / leer ---------- */
   var palabras = chica.textContent.trim().split(/\s+/).length;
   var minutos = Math.max(1, Math.round(palabras / 230));
@@ -548,20 +667,47 @@
     document.getElementById("bajada").textContent = sinLeer
       ? "Sin leer. Como casi todos, casi siempre."
       : "Leer esto completo no es realista cada vez que te registras en algo.";
-    document.getElementById("dato").textContent = "El texto tiene " + palabras.toLocaleString("es-CL") + " palabras y leerlo toma unos " + minutos + " minutos. Estas son las cuatro cláusulas que importan, en simple:";
+    var personalizado = temasActivos.size > 0 && !temasActivos.has("todo") ? " para lo que elegiste" : "";
+    document.getElementById("dato").textContent = "El texto tiene " + palabras.toLocaleString("es-CL") + " palabras y leerlo toma unos " + minutos + " minutos. Estas son las cláusulas que importan" + personalizado + ", en simple:";
     var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
     window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
   }
-  document.getElementById("btnAceptar").addEventListener("click", function () { veredicto(true); });
-  document.getElementById("btnLeer").addEventListener("click", function () { veredicto(false); });
 
-  /* ---------- Expediente (demo con datos falsos) ---------- */
+  var hoja = document.getElementById("hoja");
+  var btnLeer = document.getElementById("btnLeer");
+  var btnAceptar = document.getElementById("btnAceptar");
+  function abrirLectura(abrir) {
+    hoja.classList.toggle("abierto", abrir);
+    btnLeer.setAttribute("aria-expanded", abrir ? "true" : "false");
+    btnLeer.textContent = abrir ? "Cerrar lectura" : "Leer primero";
+    btnAceptar.textContent = abrir ? "Ya leí, aceptar" : "Aceptar todo";
+    if (abrir) {
+      document.getElementById("consentTxt").textContent = "Leyendo antes de aceptar. Las cláusulas marcadas son las que elegiste revisar.";
+      lupa.classList.remove("on");
+      document.getElementById("chicaWrap").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    } else {
+      document.getElementById("consentTxt").textContent = "Para seguir, acepta los términos.";
+    }
+  }
+  btnLeer.addEventListener("click", function () { abrirLectura(!hoja.classList.contains("abierto")); });
+  btnAceptar.addEventListener("click", function () { veredicto(!hoja.classList.contains("abierto")); });
+
+  /* ---------- Expediente (sitios reales, datos ilustrativos) ---------- */
   var REGISTROS = [
-    { sitio: "Tienda de ropa online", anio: "2023", que: "Correo, contraseña y dirección" },
-    { sitio: "Sitio de concursos", anio: "2021", que: "Correo, RUT y fecha de nacimiento" },
-    { sitio: "App de delivery", anio: "2024", que: "Correo y teléfono" },
-    { sitio: "Foro de recetas", anio: "2019", que: "Correo y contraseña antigua" }
+    { sitio: "Servicio de Impuestos Internos", url: "sii.cl", anio: "2021", que: "RUT, clave única, declaraciones y antecedentes tributarios", riesgoSitio: 90, riesgoDatos: 100, riesgo: 98 },
+    { sitio: "Banco Estado", url: "bancoestado.cl", anio: "2024", que: "RUT, número de cuenta, claves y últimos dígitos de tarjeta", riesgoSitio: 92, riesgoDatos: 99, riesgo: 96 },
+    { sitio: "Amazon", url: "amazon.com", anio: "2023", que: "Correo, contraseña, dirección de entrega y tarjeta bancaria", riesgoSitio: 88, riesgoDatos: 97, riesgo: 94 },
+    { sitio: "Falabella", url: "falabella.com", anio: "2020", que: "Correo, contraseña, dirección e historial de compras", riesgoSitio: 75, riesgoDatos: 80, riesgo: 78 },
+    { sitio: "Mercado Libre", url: "mercadolibre.cl", anio: "2022", que: "Correo, teléfono, dirección y compras", riesgoSitio: 70, riesgoDatos: 74, riesgo: 72 },
+    { sitio: "TikTok", url: "tiktok.com", anio: "2024", que: "Correo, teléfono, ubicación aproximada e historial de navegación", riesgoSitio: 62, riesgoDatos: 72, riesgo: 68 }
   ];
+  function colorRiesgo(n) {
+    var v = Math.max(0, Math.min(100, Number(n) || 0));
+    return "hsl(" + Math.round(142 - v * 1.42) + " 72% 38%)";
+  }
+  function etiquetaRiesgo(n) {
+    return n < 25 ? "bajo" : n < 50 ? "moderado" : n < 75 ? "alto" : "crítico";
+  }
   var formExp = document.getElementById("formExp");
   formExp.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -572,42 +718,77 @@
       return;
     }
 
+    // una nueva revisión reinicia el efecto de borrado anterior
+    borrando = false;
+    cielo.classList.remove("detenido", "calma");
+    document.getElementById("granFinal").classList.remove("on");
+    document.getElementById("granFinal").setAttribute("aria-hidden", "true");
+    var btnCarta = document.getElementById("btnCarta");
+    btnCarta.disabled = false;
+    btnCarta.textContent = "Preparar solicitud de borrado";
+    document.getElementById("finDatos").style.display = "none";
+    document.getElementById("carta").style.display = "none";
+
     var trampa = document.getElementById("trampa");
     document.getElementById("trampaTexto").textContent = aceptoSinLeer === "no"
-      ? "Incluso leyendo, el formulario está hecho para que lo entregues. Otra trampa aceptada. Los datos de abajo son inventados."
-      : "Sin leer los términos, dejaste tu correo acá. Otra trampa, igual que en cualquier sitio. Los datos de abajo son inventados.";
+      ? "Incluso leyendo, el formulario está hecho para que lo entregues. Otra trampa aceptada. Los datos de abajo son ilustrativos."
+      : "Sin leer los términos, dejaste tu correo acá. Otra trampa, igual que en cualquier sitio. Los datos de abajo son ilustrativos.";
     trampa.classList.remove("on");
     void trampa.offsetWidth;
     trampa.classList.add("on");
     if (typeof rafaga === "function") rafaga();
 
+    var top = REGISTROS[0];
+    var maxRiesgo = top.riesgo;
     document.getElementById("folioVacio").style.display = "none";
     document.getElementById("folioDemo").style.display = "block";
     document.getElementById("folioCab").style.display = "flex";
     document.getElementById("quien").textContent = correo;
     document.getElementById("correoCarta").textContent = correo;
-    document.getElementById("puntajeNum").textContent = "72";
-    document.getElementById("consejoTexto").textContent = "Lo primero: la contraseña que usabas en la tienda de ropa está expuesta. Cámbiala donde la repitas y pide que borren tus datos.";
-    document.getElementById("cartaEmpresa").textContent = "Tienda de ropa online";
+    var nota = document.getElementById("puntajeNum");
+    nota.textContent = maxRiesgo;
+    nota.style.color = colorRiesgo(maxRiesgo);
+    document.getElementById("consejoTexto").textContent = "Lo primero: " + top.sitio + " (" + top.url + "), riesgo " + top.riesgo + "/100. Si se filtran tu clave única y tu RUT, pueden suplantarte. Pide el bloqueo y la eliminación.";
+    document.getElementById("cartaEmpresa").textContent = top.sitio + " (" + top.url + ")";
+
+    var asunto = "Solicitud de eliminación de datos personales - " + top.sitio + " (" + top.url + ")";
+    var cuerpo = "Estimados " + top.sitio + ":\n\n"
+      + "En ejercicio de mis derechos de acceso, rectificación, supresión y oposición (Ley N° 19.628, art. 12), y del bloqueo temporal que reconoce la Ley N° 21.719 desde el 15 de octubre de 2027, solicito que me informen qué datos personales míos mantienen y con quiénes los compartieron, que eliminen mi correo " + correo + " y todos los datos asociados de sus registros, y que bloqueen temporalmente su tratamiento mientras se resuelve.\n\n"
+      + "Si no responden o deniegan la solicitud, podré reclamar ante la Agencia de Protección de Datos Personales (ARCOP) una vez vigente la Ley N° 21.719.\n\nAtentamente,\n[Nombre]";
+    document.getElementById("btnEnviar").href = "mailto:?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(cuerpo);
+
     var ul = document.getElementById("registros");
     ul.innerHTML = "";
     REGISTROS.forEach(function (r, i) {
       var li = document.createElement("li");
       li.style.setProperty("--d", (i * 0.18) + "s");
-      li.innerHTML = '<span class="sitio"></span><span class="anio"></span><span class="que"></span>';
+      var color = colorRiesgo(r.riesgo);
+      li.innerHTML = '<div class="r-cab"><span class="sitio"></span><span class="url"></span></div>'
+        + '<span class="anio"></span>'
+        + '<span class="riesgo"><b class="riesgo-num"></b><span class="barra-riesgo"><i></i></span><span class="etiqueta-riesgo"></span><small></small></span>'
+        + '<span class="que"></span>';
       li.querySelector(".sitio").textContent = r.sitio;
+      li.querySelector(".url").textContent = r.url;
       li.querySelector(".anio").textContent = r.anio;
       li.querySelector(".que").textContent = r.que;
+      li.querySelector(".riesgo-num").textContent = r.riesgo;
+      li.querySelector(".riesgo-num").style.color = color;
+      var barra = li.querySelector(".barra-riesgo i");
+      barra.style.setProperty("--ancho", r.riesgo + "%");
+      barra.style.setProperty("--color", color);
+      li.querySelector(".etiqueta-riesgo").textContent = etiquetaRiesgo(r.riesgo);
+      li.querySelector(".riesgo small").textContent = "sitio " + r.riesgoSitio + " · datos " + r.riesgoDatos;
       ul.appendChild(li);
     });
     document.getElementById("consejo").style.display = "block";
-    document.getElementById("carta").style.display = "none";
   });
   document.getElementById("btnCarta").addEventListener("click", function () {
     var btn = this;
     document.getElementById("carta").style.display = "block";
     btn.textContent = "Solicitud lista";
     btn.disabled = true;
+    document.getElementById("granFinal").classList.add("on");
+    document.getElementById("granFinal").setAttribute("aria-hidden", "false");
     document.getElementById("finDatos").style.display = "block";
     if (typeof detenerDatos === "function") detenerDatos(btn);
   });

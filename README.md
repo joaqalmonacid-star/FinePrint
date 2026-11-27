@@ -6,9 +6,10 @@ Web pública del piloto: diagnóstico de exposición, avisos de filtración y al
 
 | Archivo | Qué hace |
 |---|---|
-| `index.html` | Landing. Mide la aceptación de términos y el precio A/B, y lleva al registro. |
+| `index.html` | Landing. Mide la aceptación de términos y el precio A/B, perfila cláusulas, muestra el expediente de demostración y lleva al registro. |
 | `registro.html` | Formulario de contacto de la reserva. |
-| `api/registro.js` | Función serverless que guarda el contacto en Brevo y envía los dos correos. |
+| `proceso.html` | Línea de tiempo del borrado: plazos, verificación y qué hacer si no eliminan los datos. |
+| `api/registro.js` | Función serverless que sirve los tres HTML, guarda el contacto en Brevo y envía los dos correos. |
 | `wrangler.toml` | Configuración para desplegar esa función en Cloudflare Workers. |
 
 ## Flujo
@@ -60,7 +61,7 @@ Para probar en local: copiar `.dev.vars.example` a `.dev.vars`, completarlo y co
 
 Conectar este repo a Vercel y cargar las mismas variables en *Project Settings → Environment Variables*. En este caso se puede dejar `REGISTRO_ENDPOINT = ""`, porque la página usa `/api/registro`. El archivo trae `export const config = { runtime: 'edge' }`; para Vercel hay que cambiar el `export default` por la función `handle` directamente (en Cloudflare se usa el objeto con `fetch()`).
 
-Con el esquema actual no hace falta GitHub Pages: el worker sirve también los dos HTML. Si se publicaran en Pages, el formulario seguiría funcionando porque apunta al worker por URL absoluta.
+Con el esquema actual no hace falta GitHub Pages: el worker sirve también los tres HTML (`/`, `/registro.html` y `/proceso.html`). Si se publicaran en Pages, el formulario seguiría funcionando porque apunta al worker por URL absoluta.
 
 ## Estado actual
 
@@ -68,7 +69,7 @@ El worker ya está desplegado y probado en:
 
 `https://fineprint-registro.joaq-almonacid.workers.dev`
 
-Ese worker hace todo junto: `GET /` sirve `index.html`, `GET /registro.html` sirve el formulario y `POST` guarda el registro en Brevo y envía los dos correos. Se verificó un registro real con `{"ok":true}`.
+Ese worker hace todo junto: `GET /` sirve `index.html`, `GET /registro.html` sirve el formulario, `GET /proceso.html` sirve la línea de tiempo y `POST` guarda el registro en Brevo y envía los dos correos. Se verificó un registro real con `{"ok":true}`.
 
 ### Publicar en tu URL de Cloudflare
 
@@ -98,4 +99,6 @@ wrangler secret put BREVO_API_KEY --name fineprint-registro
 
 ## Diagnóstico de demostración
 
-La sección «Tu correo ya aceptó muchos de estos» acepta cualquier correo y muestra un expediente con **datos falsos**, generado en el navegador. El correo no se envía a ningún servicio ni se guarda. Al revisarlo aparece el aviso «Otra trampa aceptada», que continúa la dinámica de aceptar los términos sin leerlos. El diagnóstico real llega con el piloto.
+La sección «Tu correo ya aceptó muchos de estos» acepta cualquier correo y muestra un expediente con **sitios reales** (SII, Banco Estado, Amazon, Falabella, Mercado Libre, TikTok) y **datos ilustrativos**, generado en el navegador. No acusa a esas empresas de una filtración: solo muestra ejemplos de información que pueden almacenar. Cada fila tiene un ranking 0–100 del verde al rojo, con puntuación separada del sitio y de la sensibilidad de los datos. El correo no se envía a ningún servicio ni se guarda. Al revisarlo aparece el aviso «Otra trampa aceptada».
+
+En el hero, las preguntas de perfilado resaltan las cláusulas relevantes dentro del texto; **Leer primero** abre los términos en tamaño normal en vez de marcarlos como aceptados. La carta lista incluye un `mailto:` con asunto y cuerpo preparados, y un enlace a `proceso.html` con la línea de tiempo, plazos conforme a la Ley 19.628 art. 12 y a la Ley 21.719 art. 11 (vigente desde el 15-oct-2027), verificación y alternativas si no borran los datos.

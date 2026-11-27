@@ -4,6 +4,7 @@
 
 import indexHtml from '../index.html';
 import registroHtml from '../registro.html';
+import procesoHtml from '../proceso.html';
 
 export const config = { runtime: 'edge' };
 
@@ -52,7 +53,8 @@ async function handle(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const html = path === '/' || path === '/index.html' ? indexHtml
-      : path === '/registro' || path === '/registro.html' ? registroHtml : null;
+      : path === '/registro' || path === '/registro.html' ? registroHtml
+      : path === '/proceso' || path === '/proceso.html' ? procesoHtml : null;
     if (!html) return json({ ok: false, error: 'Página no encontrada' }, 404);
     return new Response(request.method === 'HEAD' ? null : html, {
       status: 200,

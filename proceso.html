@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinePrint · Proceso de eliminación de datos</title>
+<meta name="description" content="Línea de tiempo para seguir tu solicitud de eliminación de datos personales en Chile: plazos, verificación y qué hacer si no borran tus datos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,400&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mesa: #E3E8EF; --papel: #FBFCFD; --tinta: #101114; --gris: #5B6472;
+    --linea: #CDD4DE; --timbre: #0A8449; --timbre-d: #07673A; --resaltador: #3DDC84;
+    --serif: 'Newsreader', Georgia, serif; --sans: 'Instrument Sans', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--mesa); color: var(--tinta); font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button { font: inherit; }
+  :focus-visible { outline: 3px solid var(--timbre); outline-offset: 3px; }
+
+  .membrete { position: sticky; top: 0; z-index: 20; max-width: 1120px; margin: 0 auto; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; background: rgba(227,232,239,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--linea); }
+  .marca { font-family: var(--serif); font-size: 24px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .sello { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--timbre); position: relative; }
+  .sello::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--timbre); }
+  .volver { font-size: 14px; font-weight: 600; color: var(--timbre-d); text-decoration: none; }
+  .volver:hover { text-decoration: underline; }
+
+  .cont { max-width: 980px; margin: 0 auto; padding: 56px 24px 96px; }
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--timbre-d); }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.02; letter-spacing: -1.4px; max-width: 18ch; margin-top: 14px; }
+  .intro { font-family: var(--serif); font-size: clamp(19px, 2vw, 23px); color: var(--gris); max-width: 54ch; margin-top: 18px; line-height: 1.45; }
+  .aviso { margin-top: 26px; background: #FFF4D6; border-left: 4px solid #C79000; padding: 12px 16px; font-size: 14px; line-height: 1.5; max-width: 70ch; }
+  .aviso strong { color: #7A5A00; }
+
+  .segui { margin-top: 44px; background: var(--papel); border: 1px solid var(--linea); border-radius: 4px; padding: 30px 32px 8px; box-shadow: 0 30px 60px -40px rgba(16,17,20,.35); }
+  .segui-cab { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .segui-cab h2 { font-family: var(--serif); font-size: 26px; font-weight: 500; }
+  .reiniciar { border: 1.5px solid var(--linea); background: transparent; border-radius: 999px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+  .reiniciar:hover { border-color: var(--tinta); }
+  .estado { margin-top: 8px; font-size: 14px; color: var(--gris); }
+
+  .timeline { position: relative; margin-top: 26px; padding-left: 56px; }
+  .timeline::before, .progreso { content: ""; position: absolute; left: 19px; top: 10px; width: 3px; }
+  .timeline::before { bottom: 10px; background: var(--linea); }
+  .progreso { background: var(--timbre); height: 0; transition: height .35s ease; z-index: 1; }
+  .hito { position: relative; display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 0 0 26px; cursor: pointer; color: inherit; }
+  .hito .punto { position: absolute; left: -45px; top: 4px; width: 23px; height: 23px; border-radius: 50%; background: var(--papel); border: 3px solid var(--linea); z-index: 2; transition: background .2s, border-color .2s, box-shadow .2s; }
+  .hito.hecho .punto { background: var(--timbre); border-color: var(--timbre); box-shadow: 0 0 0 6px rgba(61,220,132,.28); }
+  .hito .tarjeta { display: block; background: var(--papel); border: 1px solid var(--linea); border-radius: 8px; padding: 16px 20px; transition: border-color .2s, box-shadow .2s; }
+  .hito:hover .tarjeta { border-color: var(--gris); }
+  .hito.hecho .tarjeta { border-color: var(--timbre); box-shadow: 0 12px 26px -20px rgba(10,132,73,.9); }
+  .hito .num { font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--gris); }
+  .hito h3 { font-family: var(--serif); font-size: 22px; font-weight: 500; line-height: 1.2; margin: 4px 0 8px; }
+  .hito p { font-size: 15px; color: var(--gris); line-height: 1.5; }
+  .hito p + p { margin-top: 6px; }
+  .hito strong { color: var(--tinta); }
+  .plazo { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; background: rgba(61,220,132,.18); color: var(--timbre-d); padding: 5px 10px; border-radius: 999px; }
+
+  .leyes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 52px; }
+  .ley { background: var(--papel); border: 1px solid var(--linea); border-radius: 4px; padding: 24px 26px; }
+  .ley h3 { font-family: var(--serif); font-size: 23px; font-weight: 500; margin: 8px 0 12px; }
+  .ley p { font-size: 15px; color: var(--gris); }
+  .ley p + p { margin-top: 10px; }
+  .ley strong { color: var(--tinta); }
+  .ley.futura { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+  .ley.futura h3, .ley.futura strong { color: var(--papel); }
+  .ley.futura p { color: #BAC3CF; }
+  .ley.futura .kicker { color: var(--resaltador); }
+
+  .comprobar, .no-borran { margin-top: 24px; background: var(--papel); border-left: 4px solid var(--timbre); padding: 20px 24px; }
+  .comprobar h3, .no-borran h3 { font-family: var(--serif); font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+  .comprobar li, .no-borran li { margin-left: 20px; font-size: 15px; color: var(--gris); }
+  .comprobar li + li, .no-borran li + li { margin-top: 6px; }
+
+  footer { max-width: 980px; margin: 0 auto; padding: 0 24px 56px; color: var(--gris); font-size: 14px; }
+
+  @media (max-width: 760px) {
+    .leyes { grid-template-columns: 1fr; }
+    .segui { padding: 24px 20px 4px; }
+    .timeline { padding-left: 42px; }
+    .timeline::before, .progreso { left: 13px; }
+    .hito .punto { left: -37px; width: 19px; height: 19px; }
+    .hito h3 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="membrete">
+  <a class="marca" href="index.html"><span class="sello" aria-hidden="true"></span>FinePrint</a>
+  <a class="volver" href="index.html#expediente">← Volver al diagnóstico</a>
+</header>
+
+<main class="cont">
+  <p class="kicker">Solicitud de borrado · Chile</p>
+  <h1>Tu solicitud, paso a paso.</h1>
+  <p class="intro">Marca los hitos que ya cumpliste. La línea avanza contigo y te dice qué plazo esperar, cuándo comprobar y qué hacer si la empresa no borra tus datos.</p>
+  <p class="aviso"><strong>Antes de empezar:</strong> hoy rige la Ley N° 19.628 (art. 12), que no fija un plazo expreso de respuesta: usamos <strong>15 días hábiles como referencia práctica</strong>, no como plazo legal. Desde el <strong>15 de octubre de 2027</strong> rige la Ley N° 21.719: respuesta en <strong>30 días corridos</strong>, prorrogables una vez por otros 30.</p>
+
+  <section class="segui" aria-labelledby="tituloSegui">
+    <div class="segui-cab">
+      <h2 id="tituloSegui">Línea de tiempo</h2>
+      <button class="reiniciar" type="button" id="reiniciar">Reiniciar avance</button>
+    </div>
+    <p class="estado" id="estado" aria-live="polite">Toca el primer hito cuando envíes el correo.</p>
+
+    <div class="timeline" id="timeline">
+      <div class="progreso" id="progreso" aria-hidden="true"></div>
+
+      <button class="hito" type="button" data-paso="0">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 1 · DÍA 0</span>
+          <h3>Envías el correo de solicitud</h3>
+          <p>Usa el correo que dejó FinePrint listo. Pide tres cosas: <strong>información</strong> sobre tus datos, <strong>eliminación</strong> de tu correo y datos asociados, y <strong>bloqueo temporal</strong> mientras resuelven.</p>
+          <p>Envíalo desde tu correo personal. No hace falta que menciones a FinePrint.</p>
+          <span class="plazo">Guarda el correo enviado como comprobante</span>
+        </span>
+      </button>
+
+      <button class="hito" type="button" data-paso="1">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 2 · DÍA 0 A 2</span>
+          <h3>Pides bloqueo temporal y acusas recibo</h3>
+          <p>La Ley 19.628 define el <strong>bloqueo</strong> como la suspensión temporal del tratamiento. Desde el 15-oct-2027, el art. 11 de la Ley 21.719 obliga a responder ese bloqueo en <strong>2 días hábiles</strong>.</p>
+          <p>Si recibes un correo de recepción, guárdalo: marca la fecha desde la que empieza a contar el plazo.</p>
+          <span class="plazo">Hoy: sin plazo legal expreso · Desde 2027: 2 días hábiles</span>
+        </span>
+      </button>
+
+      <button class="hito" type="button" data-paso="2">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 3 · ESPERA</span>
+          <h3>Esperas la respuesta</h3>
+          <p><strong>Hoy:</strong> la Ley 19.628 no establece un plazo para responder. Como referencia práctica, espera <strong>15 días hábiles</strong> antes de insistir; es una guía, no un plazo legal.</p>
+          <p><strong>Desde el 15-oct-2027:</strong> art. 11 de la Ley 21.719: <strong>30 días corridos</strong> desde el ingreso de la solicitud, prorrogables <strong>una sola vez</strong> por otros 30 días corridos.</p>
+          <span class="plazo">Hoy: 15 días hábiles de referencia · Desde 2027: 30 + 30 días corridos</span>
+        </span>
+      </button>
+
+      <button class="hito" type="button" data-paso="3">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 4 · VERIFICACIÓN</span>
+          <h3>Compruebas si borraron tus datos</h3>
+          <p>Hazlo cuando llegue la respuesta, o cuando pase el plazo anterior sin respuesta. Vuelve a entrar a tu cuenta, busca tu correo en los sistemas de la empresa y vuelve a pedir acceso por escrito si aún apareces.</p>
+          <p>Pide también <strong>copia del registro alterado</strong>: la Ley 19.628 art. 12 la reconoce gratuitamente cuando se solicita.</p>
+          <span class="plazo">Comprueba al recibir la respuesta o al vencer el plazo</span>
+        </span>
+      </button>
+
+      <button class="hito" type="button" data-paso="4">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 5 · SI NO LOS BORRAN</span>
+          <h3>Pides explicación y vuelves a insistir</h3>
+          <p>Si no borraron o no respondieron, escribe otra vez adjuntando tu primer correo y pregunta la <strong>razón concreta</strong>. Muchas respuestas negativas se deben a obligaciones legales de conservación; pidiendo el fundamento evitas un malentendido.</p>
+          <p><strong>Hoy:</strong> si hay relación de consumo, puedes acudir a SERNAC; también existe la vía judicial (recurso de protección). <strong>Desde el 15-oct-2027:</strong> puedes reclamar ante la <strong>Agencia de Protección de Datos Personales (ARCOP)</strong> si rechazan o no responden a tiempo.</p>
+          <span class="plazo">FinePrint no promete reclamar por ti: te deja los pasos listos</span>
+        </span>
+      </button>
+
+      <button class="hito" type="button" data-paso="5">
+        <span class="punto" aria-hidden="true"></span>
+        <span class="tarjeta">
+          <span class="num">HITO 6 · CIERRE</span>
+          <h3>Tus datos son borrados</h3>
+          <p>La empresa confirma por escrito la eliminación o el bloqueo. Guarda esa confirmación junto con tu solicitud original: es tu respaldo.</p>
+          <p>Si los datos ya habían sido comunicados a otras personas, la Ley 19.628 art. 12 exige que se les avise a la brevedad, o que se ponga un aviso de general conocimiento cuando no sea posible individualizarlos.</p>
+          <span class="plazo">Con confirmación escrita, el expediente queda cerrado</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <div class="leyes">
+    <section class="ley">
+      <p class="kicker">Vigente hoy</p>
+      <h3>Ley N° 19.628, art. 12</h3>
+      <p>Derecho a pedir <strong>información</strong> sobre los datos, su procedencia y destinatarios; a exigir <strong>rectificación</strong> si son erróneos; y a pedir <strong>eliminación o bloqueo</strong> cuando se entregaron voluntariamente o sirven para comunicaciones comerciales.</p>
+      <p>La información, modificación y eliminación son <strong>gratuitas</strong>. La ley no fija un plazo expreso de respuesta: por eso usamos 15 días hábiles solo como referencia para decidir cuándo insistir.</p>
+    </section>
+    <section class="ley futura">
+      <p class="kicker">Desde 15-oct-2027</p>
+      <h3>Ley N° 21.719, art. 11</h3>
+      <p>Solicitud escrita por correo, formulario o medio equivalente. El responsable debe <strong>acusar recibo</strong> y pronunciarse en <strong>30 días corridos</strong>, prorrogables una vez por otros 30.</p>
+      <p>El <strong>bloqueo temporal</strong> se resuelve en <strong>2 días hábiles</strong>. Si hay rechazo o silencio, el titular puede reclamar ante la <strong>ARCOP</strong>. La Ley 21.855 postergó su vigencia al 15 de octubre de 2027.</p>
+    </section>
+  </div>
+
+  <section class="comprobar">
+    <h3>Cuándo comprobarlo</h3>
+    <ul>
+      <li>Al recibir la respuesta, aunque diga que no eliminó nada: pide el fundamento.</li>
+      <li>Sin respuesta: a los 15 días hábiles como referencia hoy; a los 30 días corridos desde 2027.</li>
+      <li>Si responden que sí, pide copia del registro alterado y guarda el comprobante.</li>
+    </ul>
+  </section>
+
+  <section class="no-borran">
+    <h3>Si no los borran</h3>
+    <ul>
+      <li>Pide por escrito la razón concreta y vuelve a enviar la solicitud con el comprobante de la primera.</li>
+      <li>Revisa si hay una obligación legal de conservación: no es lo mismo negarse que estar impedida de borrar.</li>
+      <li>Hoy: si es una relación de consumo, puedes acudir a SERNAC; para proteger tus derechos fundamentales existe el recurso de protección.</li>
+      <li>Desde el 15 de octubre de 2027: reclama ante la ARCOP adjuntando la solicitud, la fecha de envío y la respuesta o el silencio.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  FinePrint deja la solicitud lista y te muestra el proceso. No borramos datos por ti ni prometemos reclamar ante un regulador: tú envías el correo y decides cómo insistir. Contacto:
+  <a href="mailto:administracionfineprint@gmail.com">administracionfineprint@gmail.com</a>
+</footer>
+
+<script>
+  var pasos = Array.prototype.slice.call(document.querySelectorAll(".hito"));
+  var progreso = document.getElementById("progreso");
+  var estado = document.getElementById("estado");
+  var mensajes = [
+    "Empieza aquí: envía el correo de solicitud.",
+    "Solicitud enviada. Ahora pide el bloqueo temporal y guarda el acuse de recibo.",
+    "En espera. Hoy, 15 días hábiles como referencia; desde 2027, 30 días corridos prorrogables.",
+    "Momento de comprobar: revisa tu cuenta y pide copia del registro alterado.",
+    "No borraron: pide la razón, reitera y evalúa la vía de reclamación que corresponda.",
+    "Cerrado: recibiste confirmación escrita de la eliminación o el bloqueo."
+  ];
+
+  function dibujar(indice) {
+    var punto = pasos[indice].querySelector(".punto");
+    var y = pasos[indice].offsetTop + punto.offsetTop + 11;
+    progreso.style.height = Math.max(0, y - 10) + "px";
+    pasos.forEach(function (p, i) {
+      p.classList.toggle("hecho", i <= indice);
+      if (i === indice) p.setAttribute("aria-current", "step");
+      else p.removeAttribute("aria-current");
+    });
+    estado.textContent = mensajes[indice];
+    try { localStorage.setItem("fp_proceso_paso", String(indice)); } catch (e) {}
+  }
+
+  pasos.forEach(function (p, i) {
+    p.addEventListener("click", function () { dibujar(i); });
+  });
+  document.getElementById("reiniciar").addEventListener("click", function () { dibujar(0); });
+  addEventListener("resize", function () {
+    var actual = pasos.findIndex(function (p) { return p.getAttribute("aria-current") === "step"; });
+    dibujar(actual < 0 ? 0 : actual);
+  });
+
+  var guardado = 0;
+  try { guardado = parseInt(localStorage.getItem("fp_proceso_paso"), 10) || 0; } catch (e) {}
+  dibujar(Math.max(0, Math.min(pasos.length - 1, guardado)));
+</script>
+</body>
+</html>
