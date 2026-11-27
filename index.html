@@ -224,14 +224,13 @@
   .btn-ok.absorbiendo { animation: iman .75s ease-out; }
   @keyframes iman { 0%, 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } 45% { box-shadow: 0 0 0 12px rgba(61,220,132,.42); } }
 
-  /* el gran cartel vive dentro del expediente: termina antes de "Un correo distinto para cada tienda" */
-  #expediente { position: relative; }
-  .gran-final { position: absolute; inset: 0; z-index: 2; display: none; align-items: center; padding: 40px 24px; pointer-events: none; }
-  .gran-final.on { display: flex; animation: finalIn .5s cubic-bezier(.2,.8,.2,1) both; }
-  .gran-final-inner { position: relative; width: min(36vw, 360px); max-width: 100%; }
+  /* el gran cartel aparece debajo de la nota de HIBP, sin tapar el formulario ni el expediente */
+  .gran-final { display: none; margin-top: 26px; pointer-events: none; }
+  .gran-final.on { display: block; animation: finalIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .gran-final-inner { width: 100%; }
   .gran-final .kicker { display: inline-block; font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta); background: var(--resaltador); padding: 6px 11px; border-radius: 999px; }
-  .gran-final strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 4.6vw, 64px); line-height: .96; letter-spacing: -2px; margin: 12px 0 14px; text-shadow: 0 0 14px rgba(251,252,253,.98), 0 0 4px rgba(251,252,253,1); }
-  .gran-final p { font-family: var(--serif); font-size: clamp(16px, 1.7vw, 21px); line-height: 1.28; max-width: 30ch; text-shadow: 0 0 12px rgba(251,252,253,.98), 0 0 3px rgba(251,252,253,1); }
+  .gran-final strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(34px, 3.6vw, 52px); line-height: .98; letter-spacing: -1.5px; margin: 12px 0; }
+  .gran-final p { font-family: var(--serif); font-size: clamp(16px, 1.5vw, 19px); line-height: 1.32; max-width: 34ch; }
   .gran-final p b { color: var(--timbre-d); font-weight: 600; }
   @keyframes finalIn { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: none; } }
 
@@ -256,10 +255,9 @@
     .clausulas li { grid-template-columns: 44px 1fr; }
     .vuela { font-size: 12px; }
     .vuela.grande { font-size: 22px; }
-    .gran-final { align-items: flex-start; padding: 96px 20px 20px; }
-    .gran-final-inner { width: min(72vw, 320px); }
-    .gran-final strong { font-size: clamp(32px, 9vw, 50px); letter-spacing: -1.5px; }
-    .gran-final p { font-size: clamp(16px, 4vw, 20px); max-width: 32ch; }
+    .gran-final { margin-top: 22px; }
+    .gran-final strong { font-size: clamp(32px, 8vw, 46px); letter-spacing: -1.2px; }
+    .gran-final p { font-size: 17px; max-width: 34ch; }
   }
   @media (hover: none) { .chica-wrap { cursor: default; } .lupa, .pista { display: none; } }
   @media (prefers-reduced-motion: reduce) {
@@ -344,13 +342,6 @@
 
   <!-- EXPEDIENTE -->
   <section class="seccion papel" id="expediente">
-    <div class="gran-final" id="granFinal" aria-hidden="true">
-      <div class="gran-final-inner">
-        <span class="kicker">Solicitud lista</span>
-        <strong>Se detuvieron.</strong>
-        <p>Los mensajes dejaron de volar. <b>Eso es lo que pasaría si la empresa borrara tus datos</b>: dejarían de llegarte avisos y spam.</p>
-      </div>
-    </div>
     <div class="cont">
       <h2 class="h2">Tu correo ya aceptó muchos de estos.</h2>
       <p class="intro">Cada vez que te registras, tu correo queda en otra base de datos. Algunas se filtran. FinePrint te muestra en cuáles estás, qué se expuso y qué hacer primero.</p>
@@ -366,6 +357,13 @@
             <button class="btn btn-ok" type="submit">Revisar</button>
           </div>
           <p class="aviso-demo">Conectado a <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a>: usamos correos de prueba de su dominio de integración. Las brechas son reales, pero no pertenecen a nadie acá. Tu correo no se consulta. En el piloto, revisamos tu correo en HIBP solo si tú lo autorizas.</p>
+          <div class="gran-final" id="granFinal" aria-hidden="true">
+            <div class="gran-final-inner">
+              <span class="kicker">Solicitud lista</span>
+              <strong>Se detuvieron.</strong>
+              <p>Los mensajes dejaron de volar. <b>Eso es lo que pasaría si la empresa borrara tus datos</b>: dejarían de llegarte avisos y spam.</p>
+            </div>
+          </div>
         </form>
         <div class="folio" id="folio">
           <p class="folio-vacio" id="folioVacio">Aquí aparece tu expediente: los sitios donde está tu correo, ordenados por riesgo.</p>
