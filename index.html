@@ -76,6 +76,7 @@
   /* ===== HERO: el documento ===== */
   .hero { max-width: 1240px; margin: 0 auto; padding: 44px 24px 96px; }
   .titular { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -1.6px; max-width: 15ch; }
+  .titular.largo { max-width: 24ch; font-size: clamp(32px, 4.2vw, 58px); }
   .bajada { font-family: var(--serif); font-size: clamp(19px, 2vw, 23px); line-height: 1.45; color: var(--gris); max-width: 46ch; margin-top: 18px; }
 
   /* reproche irónico cuando aceptan después de ver el resumen */
@@ -86,6 +87,17 @@
   .reproche.on .mono { animation: negar 1.1s ease-in-out 2; transform-origin: 60px 26px; }
   @keyframes reprocheIn { from { opacity: 0; transform: translateY(-10px) rotate(-1deg); } to { opacity: 1; transform: none; } }
   @keyframes negar { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); } }
+
+  /* consecuencias de aceptar sin leer */
+  .consecuencias { display: none; margin-top: 26px; border-top: 1.5px solid var(--tinta); }
+  .consecuencias.on { display: block; animation: aparecer .5s ease-out .35s both; }
+  .consecuencias h2 { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--gris); margin: 14px 0 2px; }
+  .consecuencias ol { list-style: none; counter-reset: cons; }
+  .consecuencias li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+  .consecuencias li::before { counter-increment: cons; content: "0" counter(cons); font-family: var(--serif); font-size: 19px; color: var(--timbre-d); }
+  .consecuencias .causa { display: block; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--chica); line-height: 1.4; }
+  .consecuencias .efecto { display: block; font-family: var(--serif); font-size: 17px; line-height: 1.35; margin-top: 5px; }
+  .consecuencias .efecto b { font-weight: 600; }
 
   .hero-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); gap: 56px; align-items: start; }
   .hero-texto { padding-top: 12px; }
@@ -402,6 +414,23 @@
           <path d="M42 140 h-10 M78 140 h10"/>
         </g>
       </svg>
+    </div>
+    <div class="consecuencias" id="consecuencias" aria-live="polite">
+      <h2>Tres cosas que acabas de aceptar</h2>
+      <ol>
+        <li>
+          <span class="causa">7.2 «Podremos compartir tu correo, teléfono e historial con socios comerciales, incluso fuera de Chile.»</span>
+          <span class="efecto">Un correo con tu nombre, tu último pedido y tu ciudad ya no parece phishing: <b>parece una empresa que te conoce</b>. Y no es solo compartir datos: se vende acceso a inferencias sobre ti que no puedes ver ni corregir.</span>
+        </li>
+        <li>
+          <span class="causa">4.3 «Autorizas el tratamiento de tus datos para fines comerciales, estadísticos y de marketing, propios o de terceros.»</span>
+          <span class="efecto">Tu navegación se vuelve un perfil que decide qué te muestran y qué te ofrecen. <b>Si el perfil se equivoca, no puedes revisarlo ni corregirlo</b>: nunca lo ves.</span>
+        </li>
+        <li>
+          <span class="causa">9.1 «Conservaremos tus datos aun después de cerrada tu cuenta.»</span>
+          <span class="efecto">Cerrar no borra: los datos quedan en respaldos y en sistemas de terceros. <b>Si aparece una filtración años después, tu correo y tu teléfono siguen ahí</b>, aunque ya no uses el sitio.</span>
+        </li>
+      </ol>
     </div>
     <div class="hero-cta">
       <a class="btn btn-verde js-cta" href="registro.html">Reservar mi cupo</a>
@@ -783,6 +812,7 @@
   function veredicto(sinLeer, conFinePrint) {
     var reproche = !!conFinePrint && !sinLeer;
     document.getElementById("reproche").classList.toggle("on", reproche);
+    document.getElementById("consecuencias").classList.toggle("on", sinLeer);
     ocultarNudge();
     var seg = (performance.now() - inicio) / 1000;
     var segTxt = seg < 60 ? seg.toFixed(1).replace(".", ",") + " segundos" : Math.round(seg / 60) + " minutos";
@@ -797,11 +827,17 @@
     document.getElementById("consentTxt").textContent = reproche
       ? "Aceptaste igual, después de ver las cláusulas riesgosas."
       : sinLeer
-        ? "Habrías aceptado estos términos y condiciones sin leerlos."
+        ? "Tardaste " + segTxt + " en aceptar."
         : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
     lupa.classList.remove("on");
-    document.getElementById("titular").textContent = reproche ? "¿Por qué harías eso?" : sinLeer ? "Habrías aceptado en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
+    var titular = document.getElementById("titular");
+    titular.classList.toggle("largo", sinLeer);
+    titular.textContent = reproche
+      ? "¿Por qué harías eso?"
+      : sinLeer
+        ? "Habrías aceptado estos términos y condiciones sin leerlos."
+        : "Bien. Te ahorramos " + minutos + " minutos.";
     document.getElementById("bajada").textContent = reproche
       ? "Te mostramos lo importante en verde. Igual aceptaste. Toca madera."
       : sinLeer
