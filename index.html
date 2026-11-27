@@ -41,10 +41,9 @@
   .hero-cta .btn { padding: 16px 28px; font-size: 18px; border-radius: 999px; box-shadow: 0 14px 28px -14px rgba(10,132,73,.95); }
   .hero-cta small { color: var(--gris); font-size: 14px; }
 
-  /* perfilado: elige qué cláusulas se resaltan */
-  /* el perfilado aparece solo después del ejercicio, para no delatar el experimento */
+  /* perfilado: aparece después de usar FinePrint o de aceptar, para no delatar el experimento */
   .perfil { display: none; margin-top: 26px; padding: 18px 20px; border: 1.5px solid var(--linea); border-radius: 10px; background: rgba(251,252,253,.72); }
-  .aceptado .perfil { display: block; animation: perfilIn .5s ease-out 1.9s both; }
+  .perfil-listo .perfil { display: block; animation: perfilIn .5s ease-out .35s both; }
   @keyframes perfilIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .perfil-tit { font-family: var(--serif); font-size: 19px; margin-bottom: 12px; }
   .perfil-preg { margin-top: 12px; }
@@ -76,8 +75,8 @@
   .chica { font-family: var(--serif); font-size: 9.5px; line-height: 1.42; color: var(--chica); text-align: justify; hyphens: auto; }
   .chica p { margin-bottom: 5px; transition: opacity .25s, background .25s; }
   .chica b { color: var(--gris); font-weight: 600; }
-  #chica p.relevante { background: rgba(61,220,132,.16); box-shadow: inset 3px 0 var(--resaltador); padding: 6px 9px; margin-left: -9px; border-radius: 2px; }
-  #chica p.atenuada { opacity: .3; }
+  .chica p.relevante { background: rgba(61,220,132,.16); box-shadow: inset 3px 0 var(--resaltador); padding: 6px 9px; margin-left: -9px; border-radius: 2px; }
+  .chica p.atenuada { opacity: .3; }
 
   /* "Leer primero" abre el documento en tamaño normal */
   .hoja.abierto .chica-wrap { height: auto; overflow: visible; cursor: default; padding-bottom: 8px; }
@@ -87,7 +86,22 @@
   .hoja.abierto .chica b { color: var(--tinta); }
   .hoja.abierto .pista, .hoja.abierto .lupa { display: none; }
 
-  /* cláusulas importantes: sin marca verde hasta que termine el ejercicio */
+  /* flecha a la derecha del texto para bajar al final */
+  .btn-bajar { display: none; position: sticky; bottom: 84px; z-index: 8; width: 46px; height: 46px; margin: 12px 20px 0 auto; border-radius: 50%; border: 1.5px solid var(--tinta); background: var(--papel); color: var(--tinta); font-size: 24px; line-height: 1; cursor: pointer; box-shadow: 0 12px 24px -14px rgba(16,17,20,.7); transition: background .15s, color .15s, transform .15s; }
+  .hoja.abierto:not(.resumido) .btn-bajar { display: grid; place-items: center; }
+  .btn-bajar:hover { background: var(--tinta); color: var(--papel); transform: translateY(2px); }
+  .aceptado .hoja.abierto:not(.resumido) .btn-bajar { display: none; }
+
+  /* botón y vista resumida de FinePrint */
+  button.btn-fineprint { display: none; }
+  .hoja.abierto:not(.resumido) .btn-fineprint { display: inline-block; }
+  .hoja.resumido .chica { font-size: 10.5px; line-height: 1.5; color: var(--chica); }
+  .hoja.resumido .chica p { margin-bottom: 7px; }
+  .hoja.resumido .chica b { color: var(--gris); }
+  .hoja.resumido .chica p.no-clave { opacity: .3; }
+  .hoja.resumido .chica p.relevante { background: transparent; box-shadow: none; padding: 0; margin-left: 0; }
+
+  /* cláusulas importantes: sin marca verde hasta usar FinePrint o elegir un tema */
   .clave { color: var(--tinta); padding: 0 2px; transition: background .3s; }
   .clave::before { content: "!"; display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 700; color: var(--gris); background: var(--linea); border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; margin-right: 4px; vertical-align: 1px; transition: background .3s, color .3s; }
 
@@ -114,8 +128,14 @@
   .aceptado .timbre { animation: timbrar .45s cubic-bezier(.2,.9,.3,1.3) forwards; }
   @keyframes timbrar { to { opacity: .92; transform: rotate(-9deg) scale(1); } }
   .aceptado .chica-wrap { cursor: default; }
-  .perfil-activo .clave { background-image: linear-gradient(var(--resaltador), var(--resaltador)); animation: clavePulso .7s ease-out; }
-  .perfil-activo .clave::before { background: var(--resaltador); color: var(--tinta); }
+  .filtrando-perfil .chica p.relevante .clave,
+  .modo-fineprint .clave,
+  .modo-fineprint.filtrando-perfil .chica p.relevante .clave { background-image: linear-gradient(var(--resaltador), var(--resaltador)); animation: clavePulso .7s ease-out; }
+  .filtrando-perfil .chica p.relevante .clave::before,
+  .modo-fineprint .clave::before,
+  .modo-fineprint.filtrando-perfil .chica p.relevante .clave::before { background: var(--resaltador); color: var(--tinta); }
+  .modo-fineprint.filtrando-perfil .clave { background-image: none; animation: none; }
+  .modo-fineprint.filtrando-perfil .clave::before { background: var(--linea); color: var(--gris); }
   @keyframes clavePulso { 50% { box-shadow: 0 0 0 6px rgba(61,220,132,.35); } }
 
   .veredicto { display: none; max-width: 760px; margin-top: 40px; }
@@ -357,7 +377,7 @@
           <button class="chip" type="button" data-tema="todo" aria-pressed="false">Ver todo</button>
         </div>
       </div>
-      <p class="perfil-ayuda" id="perfilAyuda">Elige los temas que te importan y marcamos las cláusulas del documento que más te afectan. Puedes elegir varias.</p>
+      <p class="perfil-ayuda" id="perfilAyuda">Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias.</p>
     </div>
     </div>
 
@@ -386,10 +406,12 @@
         </div>
         <div class="lupa" id="lupa" aria-hidden="true"></div>
       </div>
-      <div class="consent">
+      <button class="btn-bajar" id="btnBajar" type="button" aria-label="Bajar al final de los términos" title="Bajar al final">↓</button>
+      <div class="consent" id="finTerminos">
         <p id="consentTxt">Para seguir, acepta los términos.</p>
         <div class="acciones">
           <button class="btn btn-leer" id="btnLeer" type="button" aria-expanded="false" aria-controls="chicaWrap">Leer primero</button>
+          <button class="btn btn-verde btn-fineprint" id="btnFinePrint" type="button">Utilizar FinePrint</button>
           <button class="btn btn-ok" id="btnAceptar" type="button">Aceptar todo</button>
         </div>
       </div>
@@ -605,6 +627,7 @@
   var chips = document.querySelectorAll(".chip[data-tema]");
   var parrafosPerfil = document.querySelectorAll("#chica p[data-temas]");
   var resumenPerfil = document.querySelectorAll(".clausulas li[data-temas]");
+  document.querySelectorAll("#chica p").forEach(function (p) { if (!p.querySelector(".clave")) p.classList.add("no-clave"); });
   function toca(temas) { return temas.some(function (t) { return temasActivos.has(t); }); }
   function sincronizarCopia() {
     lupa.innerHTML = "";
@@ -614,10 +637,11 @@
     ajustarCopia();
   }
   function aplicarPerfil() {
-    // antes de aceptar no se marca ni se atenúa nada: el experimento no se delata
-    var aplicado = document.body.classList.contains("aceptado");
-    document.body.classList.toggle("perfil-activo", aplicado && temasActivos.size > 0);
-    var filtrando = aplicado && temasActivos.size > 0 && !temasActivos.has("todo");
+    // antes de usar FinePrint o aceptar no se marca nada: el experimento no se delata
+    var perfilListo = document.body.classList.contains("perfil-listo");
+    document.body.classList.toggle("perfil-activo", perfilListo && temasActivos.size > 0);
+    var filtrando = perfilListo && temasActivos.size > 0 && !temasActivos.has("todo");
+    document.body.classList.toggle("filtrando-perfil", filtrando);
     var resaltadas = 0;
     parrafosPerfil.forEach(function (p) {
       var temas = p.getAttribute("data-temas").split(/\s+/);
@@ -634,11 +658,11 @@
     });
     chips.forEach(function (b) { b.setAttribute("aria-pressed", temasActivos.has(b.getAttribute("data-tema")) ? "true" : "false"); });
     var nombres = Array.prototype.map.call(document.querySelectorAll(".chip[aria-pressed='true']"), function (b) { return b.textContent.toLowerCase(); });
-    document.getElementById("perfilAyuda").textContent = !aplicado
-      ? "Elige los temas que te importan y marcamos las cláusulas del documento que más te afectan. Puedes elegir varias."
+    document.getElementById("perfilAyuda").textContent = !perfilListo
+      ? "Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias."
       : !filtrando
-        ? "Sin filtro: verás los términos completos. Elige un tema para resaltar solo lo que te afecta."
-        : "Resaltamos " + resaltadas + " cláusulas por " + nombres.join(", ") + ". Las demás quedan tenues.";
+        ? "Sin filtro: en futuros términos verás todo. Elige un tema para marcar solo lo que te afecta."
+        : "En futuros términos resaltaremos " + resaltadas + " cláusulas por " + nombres.join(", ") + ". Las demás quedarán tenues.";
     sincronizarCopia();
   }
   chips.forEach(function (b) {
@@ -659,6 +683,10 @@
 
   /* ---------- Aceptar / leer ---------- */
   function aplicadoPerfil() { return temasActivos.size > 0 && !temasActivos.has("todo"); }
+  function mostrarPerfil() {
+    document.body.classList.add("perfil-listo");
+    aplicarPerfil();
+  }
   var palabras = chica.textContent.trim().split(/\s+/).length;
   var minutos = Math.max(1, Math.round(palabras / 230));
   var aceptoSinLeer = "";
@@ -669,7 +697,7 @@
     aceptoSinLeer = sinLeer ? "si" : "no";
     actualizarCTAs();
     document.body.classList.add("aceptado");
-    aplicarPerfil();
+    mostrarPerfil();
     document.getElementById("consentTxt").textContent = sinLeer ? "Términos aceptados sin leer." : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
     lupa.classList.remove("on");
@@ -685,22 +713,55 @@
 
   var hoja = document.getElementById("hoja");
   var btnLeer = document.getElementById("btnLeer");
+  var btnFinePrint = document.getElementById("btnFinePrint");
+  var btnBajar = document.getElementById("btnBajar");
   var btnAceptar = document.getElementById("btnAceptar");
+
+  function actualizarBotones() {
+    var abierto = hoja.classList.contains("abierto");
+    var resumido = hoja.classList.contains("resumido");
+    btnLeer.textContent = !abierto ? "Leer primero" : resumido ? "Ver texto completo" : "Cerrar lectura";
+    btnLeer.setAttribute("aria-expanded", abierto ? "true" : "false");
+    btnAceptar.textContent = abierto ? "Ya leí, aceptar" : "Aceptar todo";
+  }
   function abrirLectura(abrir) {
     hoja.classList.toggle("abierto", abrir);
-    btnLeer.setAttribute("aria-expanded", abrir ? "true" : "false");
-    btnLeer.textContent = abrir ? "Cerrar lectura" : "Leer primero";
-    btnAceptar.textContent = abrir ? "Ya leí, aceptar" : "Aceptar todo";
+    if (!abrir) hoja.classList.remove("resumido");
+    actualizarBotones();
     if (abrir) {
-      document.getElementById("consentTxt").textContent = "Leyendo antes de aceptar. Las cláusulas marcadas son las que elegiste revisar.";
+      document.getElementById("consentTxt").textContent = "Leyendo los términos completos. Usa la flecha para bajar al final.";
       lupa.classList.remove("on");
       document.getElementById("chicaWrap").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    } else {
+    } else if (!document.body.classList.contains("aceptado")) {
       document.getElementById("consentTxt").textContent = "Para seguir, acepta los términos.";
     }
   }
-  btnLeer.addEventListener("click", function () { abrirLectura(!hoja.classList.contains("abierto")); });
+  btnLeer.addEventListener("click", function () {
+    if (hoja.classList.contains("resumido")) {
+      hoja.classList.remove("resumido");
+      document.body.classList.remove("modo-fineprint");
+      aplicarPerfil();
+      actualizarBotones();
+      document.getElementById("consentTxt").textContent = "Leyendo los términos completos. Usa la flecha para bajar al final.";
+      document.getElementById("chicaWrap").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    } else {
+      abrirLectura(!hoja.classList.contains("abierto"));
+    }
+  });
+  btnBajar.addEventListener("click", function () {
+    document.getElementById("finTerminos").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "end" });
+  });
+  btnFinePrint.addEventListener("click", function () {
+    hoja.classList.add("resumido");
+    document.body.classList.add("modo-fineprint");
+    mostrarPerfil();
+    actualizarBotones();
+    document.getElementById("consentTxt").textContent = "FinePrint marcó en verde lo delicado. Ahora elige qué te importa para futuros términos.";
+    var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
+    window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
+  });
   btnAceptar.addEventListener("click", function () { veredicto(!hoja.classList.contains("abierto")); });
+  actualizarBotones();
 
   /* ---------- Expediente (sitios reales, datos ilustrativos) ---------- */
   var REGISTROS = [
