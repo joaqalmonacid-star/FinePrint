@@ -42,7 +42,10 @@
   .hero-cta small { color: var(--gris); font-size: 14px; }
 
   /* perfilado: elige qué cláusulas se resaltan */
-  .perfil { margin-top: 26px; padding: 18px 20px; border: 1.5px solid var(--linea); border-radius: 10px; background: rgba(251,252,253,.72); }
+  /* el perfilado aparece solo después del ejercicio, para no delatar el experimento */
+  .perfil { display: none; margin-top: 26px; padding: 18px 20px; border: 1.5px solid var(--linea); border-radius: 10px; background: rgba(251,252,253,.72); }
+  .aceptado .perfil { display: block; animation: perfilIn .5s ease-out 1.9s both; }
+  @keyframes perfilIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .perfil-tit { font-family: var(--serif); font-size: 19px; margin-bottom: 12px; }
   .perfil-preg { margin-top: 12px; }
   .perfil-preg > span { display: block; font-size: 13px; color: var(--gris); margin-bottom: 8px; }
@@ -84,9 +87,9 @@
   .hoja.abierto .chica b { color: var(--tinta); }
   .hoja.abierto .pista, .hoja.abierto .lupa { display: none; }
 
-  /* cláusulas importantes, marcadas dentro del texto */
-  .clave { background-image: linear-gradient(rgba(61,220,132,.55), rgba(61,220,132,.55)); background-repeat: no-repeat; background-size: 100% 100%; color: var(--tinta); padding: 0 2px; transition: background .3s; }
-  .clave::before { content: "!"; display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 700; color: var(--papel); background: var(--timbre); border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; margin-right: 4px; vertical-align: 1px; }
+  /* cláusulas importantes: sin marca verde hasta que termine el ejercicio */
+  .clave { color: var(--tinta); padding: 0 2px; transition: background .3s; }
+  .clave::before { content: "!"; display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 700; color: var(--gris); background: var(--linea); border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; margin-right: 4px; vertical-align: 1px; transition: background .3s, color .3s; }
 
   /* lupa */
   .lupa { position: absolute; width: 230px; height: 230px; border-radius: 50%; overflow: hidden; pointer-events: none; background: var(--papel); border: 2px solid var(--tinta); box-shadow: 0 14px 30px -12px rgba(16,17,20,.45); opacity: 0; transform: scale(.85); transition: opacity .15s, transform .15s; z-index: 3; }
@@ -111,8 +114,8 @@
   .aceptado .timbre { animation: timbrar .45s cubic-bezier(.2,.9,.3,1.3) forwards; }
   @keyframes timbrar { to { opacity: .92; transform: rotate(-9deg) scale(1); } }
   .aceptado .chica-wrap { cursor: default; }
-  .aceptado .clave { background-image: linear-gradient(var(--resaltador), var(--resaltador)); animation: clavePulso .7s ease-out; }
-  .aceptado .clave::before { background: var(--resaltador); color: var(--tinta); }
+  .perfil-activo .clave { background-image: linear-gradient(var(--resaltador), var(--resaltador)); animation: clavePulso .7s ease-out; }
+  .perfil-activo .clave::before { background: var(--resaltador); color: var(--tinta); }
   @keyframes clavePulso { 50% { box-shadow: 0 0 0 6px rgba(61,220,132,.35); } }
 
   .veredicto { display: none; max-width: 760px; margin-top: 40px; }
@@ -335,7 +338,7 @@
     </div>
 
     <div class="perfil" id="perfil">
-      <p class="perfil-tit">Antes de leer: dinos qué te importa.</p>
+      <p class="perfil-tit">Ahora dinos qué te importa.</p>
       <div class="perfil-preg">
         <span>1. ¿Qué te preocupa más?</span>
         <div class="chips" role="group" aria-label="Temas que te preocupan">
@@ -354,7 +357,7 @@
           <button class="chip" type="button" data-tema="todo" aria-pressed="false">Ver todo</button>
         </div>
       </div>
-      <p class="perfil-ayuda" id="perfilAyuda">Marcamos en el documento las cláusulas que más te afectan. Puedes elegir varias.</p>
+      <p class="perfil-ayuda" id="perfilAyuda">Elige los temas que te importan y marcamos las cláusulas del documento que más te afectan. Puedes elegir varias.</p>
     </div>
     </div>
 
@@ -611,7 +614,10 @@
     ajustarCopia();
   }
   function aplicarPerfil() {
-    var filtrando = temasActivos.size > 0 && !temasActivos.has("todo");
+    // antes de aceptar no se marca ni se atenúa nada: el experimento no se delata
+    var aplicado = document.body.classList.contains("aceptado");
+    document.body.classList.toggle("perfil-activo", aplicado && temasActivos.size > 0);
+    var filtrando = aplicado && temasActivos.size > 0 && !temasActivos.has("todo");
     var resaltadas = 0;
     parrafosPerfil.forEach(function (p) {
       var temas = p.getAttribute("data-temas").split(/\s+/);
@@ -628,9 +634,11 @@
     });
     chips.forEach(function (b) { b.setAttribute("aria-pressed", temasActivos.has(b.getAttribute("data-tema")) ? "true" : "false"); });
     var nombres = Array.prototype.map.call(document.querySelectorAll(".chip[aria-pressed='true']"), function (b) { return b.textContent.toLowerCase(); });
-    document.getElementById("perfilAyuda").textContent = !filtrando
-      ? "Sin filtro: verás los términos completos. Elige un tema para resaltar solo lo que te afecta."
-      : "Resaltamos " + resaltadas + " cláusulas por " + nombres.join(", ") + ". Las demás quedan tenues.";
+    document.getElementById("perfilAyuda").textContent = !aplicado
+      ? "Elige los temas que te importan y marcamos las cláusulas del documento que más te afectan. Puedes elegir varias."
+      : !filtrando
+        ? "Sin filtro: verás los términos completos. Elige un tema para resaltar solo lo que te afecta."
+        : "Resaltamos " + resaltadas + " cláusulas por " + nombres.join(", ") + ". Las demás quedan tenues.";
     sincronizarCopia();
   }
   chips.forEach(function (b) {
@@ -650,6 +658,7 @@
   aplicarPerfil();
 
   /* ---------- Aceptar / leer ---------- */
+  function aplicadoPerfil() { return temasActivos.size > 0 && !temasActivos.has("todo"); }
   var palabras = chica.textContent.trim().split(/\s+/).length;
   var minutos = Math.max(1, Math.round(palabras / 230));
   var aceptoSinLeer = "";
@@ -660,6 +669,7 @@
     aceptoSinLeer = sinLeer ? "si" : "no";
     actualizarCTAs();
     document.body.classList.add("aceptado");
+    aplicarPerfil();
     document.getElementById("consentTxt").textContent = sinLeer ? "Términos aceptados sin leer." : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
     lupa.classList.remove("on");
@@ -667,7 +677,7 @@
     document.getElementById("bajada").textContent = sinLeer
       ? "Sin leer. Como casi todos, casi siempre."
       : "Leer esto completo no es realista cada vez que te registras en algo.";
-    var personalizado = temasActivos.size > 0 && !temasActivos.has("todo") ? " para lo que elegiste" : "";
+    var personalizado = aplicadoPerfil() ? " para lo que elegiste" : "";
     document.getElementById("dato").textContent = "El texto tiene " + palabras.toLocaleString("es-CL") + " palabras y leerlo toma unos " + minutos + " minutos. Estas son las cláusulas que importan" + personalizado + ", en simple:";
     var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
     window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
