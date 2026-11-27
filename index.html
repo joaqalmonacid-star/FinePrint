@@ -53,6 +53,12 @@
   .chip:hover { border-color: var(--tinta); }
   .chip[aria-pressed="true"] { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
   .perfil-ayuda { margin-top: 12px; font-size: 13px; color: var(--gris); }
+  .envio-preferencias { display: none; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--linea); }
+  .envio-preferencias.on { display: block; animation: aparecer .35s ease-out both; }
+  .btn-enviar-pref { padding: 11px 18px; font-size: 14px; }
+  .aviso-prueba { margin-top: 10px; background: #FFF4D6; border-left: 4px solid #C79000; padding: 8px 10px; font-size: 12px; line-height: 1.4; color: #7A5A00; }
+  .confirmacion-pref { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--timbre-d); }
+  .confirmacion-pref:empty { display: none; }
   .cta-fija { position: fixed; bottom: 0; left: 0; right: 0; z-index: 70; background: var(--tinta); color: var(--papel); display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 24px; box-shadow: 0 -12px 30px -20px rgba(0,0,0,.7); }
   .cta-fija span { font-size: 14px; color: #C9D1DA; }
   .cta-fija .btn-cta { padding: 10px 18px; }
@@ -87,9 +93,10 @@
   .hoja.abierto .pista, .hoja.abierto .lupa { display: none; }
 
   /* flecha a la derecha del texto para bajar al final */
-  .btn-bajar { display: none; position: sticky; bottom: 84px; z-index: 8; width: 46px; height: 46px; margin: 12px 20px 0 auto; border-radius: 50%; border: 1.5px solid var(--tinta); background: var(--papel); color: var(--tinta); font-size: 24px; line-height: 1; cursor: pointer; box-shadow: 0 12px 24px -14px rgba(16,17,20,.7); transition: background .15s, color .15s, transform .15s; }
+  .btn-bajar { display: none; position: sticky; bottom: 92px; z-index: 8; width: 58px; height: 58px; margin: 16px -24px 0 auto; border-radius: 50%; border: 2px solid var(--tinta); background: var(--papel); color: var(--tinta); font-size: 30px; line-height: 1; cursor: pointer; box-shadow: 0 16px 30px -14px rgba(16,17,20,.8); transition: background .15s, color .15s, transform .15s; }
   .hoja.abierto:not(.resumido) .btn-bajar { display: grid; place-items: center; }
   .btn-bajar:hover { background: var(--tinta); color: var(--papel); transform: translateY(2px); }
+  .etq-bajar { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); font-family: var(--sans); font-size: 10px; font-weight: 700; color: var(--gris); white-space: nowrap; }
   .aceptado .hoja.abierto:not(.resumido) .btn-bajar { display: none; }
 
   /* botón y vista resumida de FinePrint */
@@ -149,7 +156,7 @@
   .aceptado .clausulas li:nth-child(3) { animation-delay: 1.4s; }
   .aceptado .clausulas li:nth-child(4) { animation-delay: 1.65s; }
   .clausulas li.fuera-perfil { opacity: .18 !important; }
-  .clausulas li.relevante { box-shadow: inset 3px 0 var(--resaltador); padding-left: 12px; }
+  .clausulas li.relevante, .aceptado .clausulas li { box-shadow: inset 3px 0 var(--resaltador); padding-left: 12px; }
   @keyframes aparecer { to { opacity: 1; transform: none; } }
   .clausulas .num { font-family: var(--serif); font-size: 22px; color: var(--timbre-d); grid-row: span 2; }
   .clausulas .orig { font-family: var(--serif); font-size: 15px; color: var(--chica); font-style: italic; }
@@ -305,6 +312,7 @@
 
   @media (max-width: 1000px) {
     .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+    .btn-bajar { width: 54px; height: 54px; font-size: 28px; bottom: 88px; margin-right: 12px; }
   }
   @media (max-width: 860px) {
     .expediente, .maquina, .reserva, .quienes { grid-template-columns: 1fr; gap: 32px; }
@@ -378,6 +386,11 @@
         </div>
       </div>
       <p class="perfil-ayuda" id="perfilAyuda">Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias.</p>
+      <div class="envio-preferencias" id="envioPreferencias">
+        <button class="btn btn-verde btn-enviar-pref" id="btnEnviarPref" type="button">Enviar mis preferencias</button>
+        <p class="aviso-prueba">Esto es solo una prueba: no registramos ninguna de estas preferencias ni datos. En el piloto sí será real.</p>
+        <p class="confirmacion-pref" id="confirmacionPref" aria-live="polite"></p>
+      </div>
     </div>
     </div>
 
@@ -406,7 +419,7 @@
         </div>
         <div class="lupa" id="lupa" aria-hidden="true"></div>
       </div>
-      <button class="btn-bajar" id="btnBajar" type="button" aria-label="Bajar al final de los términos" title="Bajar al final">↓</button>
+      <button class="btn-bajar" id="btnBajar" type="button" aria-label="Bajar al final de los términos" title="Bajar al final">↓<span class="etq-bajar" aria-hidden="true">al final</span></button>
       <div class="consent" id="finTerminos">
         <p id="consentTxt">Para seguir, acepta los términos.</p>
         <div class="acciones">
@@ -657,6 +670,8 @@
       li.classList.toggle("relevante", filtrando && visible);
     });
     chips.forEach(function (b) { b.setAttribute("aria-pressed", temasActivos.has(b.getAttribute("data-tema")) ? "true" : "false"); });
+    document.getElementById("envioPreferencias").classList.toggle("on", perfilListo && temasActivos.size > 0);
+    document.getElementById("confirmacionPref").textContent = "";
     var nombres = Array.prototype.map.call(document.querySelectorAll(".chip[aria-pressed='true']"), function (b) { return b.textContent.toLowerCase(); });
     document.getElementById("perfilAyuda").textContent = !perfilListo
       ? "Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias."
@@ -679,6 +694,9 @@
       aplicarPerfil();
     });
   });
+  document.getElementById("btnEnviarPref").addEventListener("click", function () {
+    document.getElementById("confirmacionPref").textContent = "¡Listo! En el piloto recibiremos tus preferencias. Acá no registramos nada.";
+  });
   aplicarPerfil();
 
   /* ---------- Aceptar / leer ---------- */
@@ -696,12 +714,14 @@
     var segTxt = seg < 60 ? seg.toFixed(1).replace(".", ",") + " segundos" : Math.round(seg / 60) + " minutos";
     aceptoSinLeer = sinLeer ? "si" : "no";
     actualizarCTAs();
-    document.body.classList.add("aceptado");
+    document.body.classList.add("aceptado", "modo-fineprint");
     mostrarPerfil();
-    document.getElementById("consentTxt").textContent = sinLeer ? "Términos aceptados sin leer." : "Términos leídos por FinePrint.";
+    document.getElementById("consentTxt").textContent = sinLeer
+      ? "Habrías aceptado estos términos y condiciones sin leerlos."
+      : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
     lupa.classList.remove("on");
-    document.getElementById("titular").textContent = sinLeer ? "Aceptaste en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
+    document.getElementById("titular").textContent = sinLeer ? "Habrías aceptado en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
     document.getElementById("bajada").textContent = sinLeer
       ? "Sin leer. Como casi todos, casi siempre."
       : "Leer esto completo no es realista cada vez que te registras en algo.";
