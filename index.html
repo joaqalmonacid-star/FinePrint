@@ -56,6 +56,15 @@
   .envio-preferencias { display: none; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--linea); }
   .envio-preferencias.on { display: block; animation: aparecer .35s ease-out both; }
   .btn-enviar-pref { padding: 11px 18px; font-size: 14px; }
+  .btn-enviar-pref.enviado { background: var(--timbre-d); cursor: default; }
+  .btn-enviar-pref:disabled { opacity: 1; }
+  .btn-wrap { position: relative; display: inline-block; }
+  .confeti { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+  .confeti i { position: absolute; width: 8px; height: 13px; border-radius: 2px; opacity: 0; animation: confetiVolar .95s ease-out forwards; }
+  @keyframes confetiVolar {
+    0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+  }
   .aviso-prueba { margin-top: 10px; background: #FFF4D6; border-left: 4px solid #C79000; padding: 8px 10px; font-size: 12px; line-height: 1.4; color: #7A5A00; }
   .confirmacion-pref { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--timbre-d); }
   .confirmacion-pref:empty { display: none; }
@@ -68,6 +77,15 @@
   .hero { max-width: 1240px; margin: 0 auto; padding: 44px 24px 96px; }
   .titular { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -1.6px; max-width: 15ch; }
   .bajada { font-family: var(--serif); font-size: clamp(19px, 2vw, 23px); line-height: 1.45; color: var(--gris); max-width: 46ch; margin-top: 18px; }
+
+  /* reproche irónico cuando aceptan después de ver el resumen */
+  .reproche { display: none; align-items: center; gap: 22px; margin-top: 22px; padding: 16px 18px; border: 1.5px solid var(--linea); border-radius: 10px; background: var(--papel); }
+  .reproche.on { display: flex; animation: reprocheIn .45s cubic-bezier(.2,.9,.3,1.2) both; }
+  .reproche p { font-family: var(--serif); font-size: clamp(28px, 3.4vw, 44px); line-height: 1.05; letter-spacing: -1px; max-width: 12ch; }
+  .reproche .mono { width: 82px; height: 118px; flex: 0 0 auto; transform-box: view-box; }
+  .reproche.on .mono { animation: negar 1.1s ease-in-out 2; transform-origin: 60px 26px; }
+  @keyframes reprocheIn { from { opacity: 0; transform: translateY(-10px) rotate(-1deg); } to { opacity: 1; transform: none; } }
+  @keyframes negar { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); } }
 
   .hero-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); gap: 56px; align-items: start; }
   .hero-texto { padding-top: 12px; }
@@ -121,6 +139,8 @@
   .consent { border-top: 1px solid var(--linea); padding: 20px 36px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .consent p { font-size: 15px; color: var(--gris); }
   .consent .acciones { display: flex; gap: 10px; }
+  .consent p.nudge { display: none; flex-basis: 100%; font-family: var(--serif); font-size: clamp(23px, 2.8vw, 32px); line-height: 1.15; color: var(--tinta); letter-spacing: -.4px; }
+  .consent.nudge-on p.nudge { display: block; animation: reprocheIn .35s ease-out both; }
   .btn { border: 0; cursor: pointer; border-radius: 8px; padding: 13px 22px; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block; }
   .btn[hidden] { display: none; }
   .btn-ok { background: var(--tinta); color: var(--papel); }
@@ -129,6 +149,11 @@
   .btn-leer:hover { box-shadow: inset 0 0 0 1.5px var(--tinta); }
   .btn-verde { background: var(--timbre); color: #fff; }
   .btn-verde:hover { background: var(--timbre-d); }
+  .btn-fineprint.latiendo { animation: latir 1s ease-in-out infinite; }
+  @keyframes latir {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(10,132,73,.5); }
+    50% { transform: scale(1.06); box-shadow: 0 0 0 12px rgba(10,132,73,0); }
+  }
 
   /* estado aceptado */
   .timbre { position: absolute; right: 28px; top: 96px; z-index: 4; font-family: var(--serif); font-size: 30px; font-weight: 600; color: var(--timbre); border: 3px solid var(--timbre); border-radius: 10px; padding: 6px 18px; transform: rotate(-9deg) scale(1.6); opacity: 0; pointer-events: none; }
@@ -327,6 +352,8 @@
     .pista { display: none; }
     .timbre { right: 14px; top: 80px; font-size: 24px; }
     .clausulas li { grid-template-columns: 44px 1fr; }
+    .reproche { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .reproche .mono { width: 70px; height: 100px; }
     .vuela { font-size: 12px; }
     .vuela.grande { font-size: 22px; }
     .acciones-borrado { align-items: flex-start; flex-direction: column; gap: 14px; }
@@ -360,6 +387,22 @@
     <div class="hero-texto">
     <h1 class="titular" id="titular">Antes de entrar, acepta nuestros términos.</h1>
     <p class="bajada" id="bajada">Es lo mismo que te piden todas las páginas. Haz lo que haces siempre.</p>
+    <div class="reproche" id="reproche" aria-live="polite">
+      <p>¿Por qué harías eso?</p>
+      <svg class="mono" viewBox="0 0 120 160" role="img" aria-label="Mono de palitos con las manos en la cadera, decepcionado">
+        <g stroke="#101114" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <circle cx="60" cy="26" r="16" fill="#FBFCFD"/>
+          <path d="M49 16 l8 3 M71 16 l-8 3" stroke-width="2.5"/>
+          <path d="M52 24 h5 M63 24 h5" stroke-width="2.5"/>
+          <path d="M52 35 q8 -5 16 0" stroke-width="2.5"/>
+          <path d="M60 42 v54"/>
+          <path d="M60 52 L38 68 L50 88"/>
+          <path d="M60 52 L82 68 L70 88"/>
+          <path d="M60 96 L42 140 M60 96 L78 140"/>
+          <path d="M42 140 h-10 M78 140 h10"/>
+        </g>
+      </svg>
+    </div>
     <div class="hero-cta">
       <a class="btn btn-verde js-cta" href="registro.html">Reservar mi cupo</a>
       <small>Sin cobro hoy · 14 días de piloto · primer cobro el día 19 · cupos limitados</small>
@@ -387,7 +430,10 @@
       </div>
       <p class="perfil-ayuda" id="perfilAyuda">Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias.</p>
       <div class="envio-preferencias" id="envioPreferencias">
-        <button class="btn btn-verde btn-enviar-pref" id="btnEnviarPref" type="button">Enviar mis preferencias</button>
+        <span class="btn-wrap">
+          <button class="btn btn-verde btn-enviar-pref" id="btnEnviarPref" type="button">Enviar mis preferencias</button>
+          <span class="confeti" id="confetiPref" aria-hidden="true"></span>
+        </span>
         <p class="aviso-prueba">Esto es solo una prueba: no registramos ninguna de estas preferencias ni datos. En el piloto sí será real.</p>
         <p class="confirmacion-pref" id="confirmacionPref" aria-live="polite"></p>
       </div>
@@ -422,6 +468,7 @@
       <button class="btn-bajar" id="btnBajar" type="button" aria-label="Bajar al final de los términos" title="Bajar al final">↓<span class="etq-bajar" aria-hidden="true">al final</span></button>
       <div class="consent" id="finTerminos">
         <p id="consentTxt">Para seguir, acepta los términos.</p>
+        <p class="nudge" id="nudge" aria-live="polite">No leíste, ¿verdad? Usa FinePrint, lo hacemos por ti.</p>
         <div class="acciones">
           <button class="btn btn-leer" id="btnLeer" type="button" aria-expanded="false" aria-controls="chicaWrap">Leer primero</button>
           <button class="btn btn-verde btn-fineprint" id="btnFinePrint" type="button">Utilizar FinePrint</button>
@@ -672,6 +719,11 @@
     chips.forEach(function (b) { b.setAttribute("aria-pressed", temasActivos.has(b.getAttribute("data-tema")) ? "true" : "false"); });
     document.getElementById("envioPreferencias").classList.toggle("on", perfilListo && temasActivos.size > 0);
     document.getElementById("confirmacionPref").textContent = "";
+    var btnEnvio = document.getElementById("btnEnviarPref");
+    btnEnvio.textContent = "Enviar mis preferencias";
+    btnEnvio.disabled = false;
+    btnEnvio.classList.remove("enviado");
+    document.getElementById("confetiPref").innerHTML = "";
     var nombres = Array.prototype.map.call(document.querySelectorAll(".chip[aria-pressed='true']"), function (b) { return b.textContent.toLowerCase(); });
     document.getElementById("perfilAyuda").textContent = !perfilListo
       ? "Elige lo que te importa: en futuros términos y condiciones marcamos en verde solo esas cláusulas. Puedes elegir varias."
@@ -695,7 +747,26 @@
     });
   });
   document.getElementById("btnEnviarPref").addEventListener("click", function () {
+    var boton = this;
+    boton.textContent = "Enviado";
+    boton.disabled = true;
+    boton.classList.add("enviado");
     document.getElementById("confirmacionPref").textContent = "¡Listo! En el piloto recibiremos tus preferencias. Acá no registramos nada.";
+    var confeti = document.getElementById("confetiPref");
+    confeti.innerHTML = "";
+    var colores = ["#0A8449", "#3DDC84", "#C79000", "#101114", "#FF8A7A"];
+    for (var i = 0; i < 16; i++) {
+      var pieza = document.createElement("i");
+      var ang = (Math.PI * 2 * i) / 16 + Math.random() * .25;
+      var dist = 48 + Math.random() * 46;
+      pieza.style.background = colores[i % colores.length];
+      pieza.style.setProperty("--dx", Math.round(Math.cos(ang) * dist) + "px");
+      pieza.style.setProperty("--dy", Math.round(Math.sin(ang) * dist) + "px");
+      pieza.style.setProperty("--rot", Math.round(Math.random() * 360 - 180) + "deg");
+      pieza.style.animationDelay = (Math.random() * .12) + "s";
+      confeti.appendChild(pieza);
+    }
+    setTimeout(function () { confeti.innerHTML = ""; }, 1500);
   });
   aplicarPerfil();
 
@@ -709,22 +780,29 @@
   var minutos = Math.max(1, Math.round(palabras / 230));
   var aceptoSinLeer = "";
 
-  function veredicto(sinLeer) {
+  function veredicto(sinLeer, conFinePrint) {
+    var reproche = !!conFinePrint && !sinLeer;
+    document.getElementById("reproche").classList.toggle("on", reproche);
+    ocultarNudge();
     var seg = (performance.now() - inicio) / 1000;
     var segTxt = seg < 60 ? seg.toFixed(1).replace(".", ",") + " segundos" : Math.round(seg / 60) + " minutos";
     aceptoSinLeer = sinLeer ? "si" : "no";
     actualizarCTAs();
     document.body.classList.add("aceptado", "modo-fineprint");
     mostrarPerfil();
-    document.getElementById("consentTxt").textContent = sinLeer
-      ? "Habrías aceptado estos términos y condiciones sin leerlos."
-      : "Términos leídos por FinePrint.";
+    document.getElementById("consentTxt").textContent = reproche
+      ? "Aceptaste igual, después de ver las cláusulas riesgosas."
+      : sinLeer
+        ? "Habrías aceptado estos términos y condiciones sin leerlos."
+        : "Términos leídos por FinePrint.";
     if (typeof rafaga === "function") setTimeout(rafaga, 350);
     lupa.classList.remove("on");
-    document.getElementById("titular").textContent = sinLeer ? "Habrías aceptado en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
-    document.getElementById("bajada").textContent = sinLeer
-      ? "Sin leer. Como casi todos, casi siempre."
-      : "Leer esto completo no es realista cada vez que te registras en algo.";
+    document.getElementById("titular").textContent = reproche ? "¿Por qué harías eso?" : sinLeer ? "Habrías aceptado en " + segTxt + "." : "Bien. Te ahorramos " + minutos + " minutos.";
+    document.getElementById("bajada").textContent = reproche
+      ? "Te mostramos lo importante en verde. Igual aceptaste. Toca madera."
+      : sinLeer
+        ? "Sin leer. Como casi todos, casi siempre."
+        : "Leer esto completo no es realista cada vez que te registras en algo.";
     var personalizado = aplicadoPerfil() ? " para lo que elegiste" : "";
     document.getElementById("dato").textContent = "El texto tiene " + palabras.toLocaleString("es-CL") + " palabras y leerlo toma unos " + minutos + " minutos. Estas son las cláusulas que importan" + personalizado + ", en simple:";
     var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
@@ -736,6 +814,17 @@
   var btnFinePrint = document.getElementById("btnFinePrint");
   var btnBajar = document.getElementById("btnBajar");
   var btnAceptar = document.getElementById("btnAceptar");
+  var nudgeActivo = false;
+  function ocultarNudge() {
+    nudgeActivo = false;
+    document.getElementById("finTerminos").classList.remove("nudge-on");
+    btnFinePrint.classList.remove("latiendo");
+  }
+  function mostrarNudge() {
+    nudgeActivo = true;
+    document.getElementById("finTerminos").classList.add("nudge-on");
+    btnFinePrint.classList.add("latiendo");
+  }
 
   function actualizarBotones() {
     var abierto = hoja.classList.contains("abierto");
@@ -745,6 +834,7 @@
     btnAceptar.textContent = abierto ? "Ya leí, aceptar" : "Aceptar todo";
   }
   function abrirLectura(abrir) {
+    if (!abrir) ocultarNudge();
     hoja.classList.toggle("abierto", abrir);
     if (!abrir) hoja.classList.remove("resumido");
     actualizarBotones();
@@ -769,9 +859,12 @@
     }
   });
   btnBajar.addEventListener("click", function () {
-    document.getElementById("finTerminos").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "end" });
+    var r = document.getElementById("finTerminos").getBoundingClientRect();
+    var destino = window.scrollY + r.bottom - window.innerHeight + 150;
+    window.scrollTo({ top: Math.max(0, destino), behavior: reduce ? "auto" : "smooth" });
   });
   btnFinePrint.addEventListener("click", function () {
+    ocultarNudge();
     hoja.classList.add("resumido");
     document.body.classList.add("modo-fineprint");
     mostrarPerfil();
@@ -780,7 +873,17 @@
     var top = document.getElementById("titular").getBoundingClientRect().top + window.scrollY - 24;
     window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
   });
-  btnAceptar.addEventListener("click", function () { veredicto(!hoja.classList.contains("abierto")); });
+  btnAceptar.addEventListener("click", function () {
+    var abierto = hoja.classList.contains("abierto");
+    var resumido = hoja.classList.contains("resumido");
+    if (abierto && !resumido && !nudgeActivo) {
+      mostrarNudge();
+      document.getElementById("consentTxt").textContent = "Antes de aceptar, mira lo que FinePrint encontró.";
+      return;
+    }
+    ocultarNudge();
+    veredicto(!abierto, resumido);
+  });
   actualizarBotones();
 
   /* ---------- Expediente (sitios reales, datos ilustrativos) ---------- */
