@@ -8,16 +8,6 @@ import registroHtml from '../registro.html';
 export const config = { runtime: 'edge' };
 
 const BREVO_API = 'https://api.brevo.com/v3';
-const HIBP_API = 'https://haveibeenpwned.com/api/v3';
-// Clave publica de prueba documentada por HIBP; solo sirve para el dominio de integracion.
-const HIBP_TEST_KEY_PUBLICO = '00000000000000000000000000000000';
-
-// Solo correos del dominio de integración de HIBP. La key de prueba no consulta correos reales.
-const CORREOS_PRUEBA = new Set([
-  'multiple-breaches@hibp-integration-tests.com',
-  'account-exists@hibp-integration-tests.com',
-  'sensitive-and-other-breaches@hibp-integration-tests.com',
-]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -56,42 +46,11 @@ async function enviar(headers, payload) {
   }
 }
 
-async function diagnosticar(correo, env) {
-  var addr = String(correo || '').trim().toLowerCase();
-  if (!CORREOS_PRUEBA.has(addr)) return json({ ok: false, error: 'Elige un correo de prueba.' }, 400);
-  var key = env.HIBP_API_KEY || HIBP_TEST_KEY_PUBLICO;
-  var r;
-  try {
-    r = await fetch(HIBP_API + '/breachedaccount/' + encodeURIComponent(addr) + '?truncateResponse=false', {
-      headers: { 'hibp-api-key': key, 'User-Agent': 'FinePrint-Prototype/1.0 (educational demo)' },
-    });
-  } catch (e) {
-    return json({ ok: false, error: 'No se pudo conectar con HIBP.' }, 502);
-  }
-  if (r.status === 404) return json({ ok: true, correo: addr, brechas: [] });
-  if (!r.ok) return json({ ok: false, error: 'HIBP respondio ' + r.status }, 502);
-  var datos;
-  try { datos = await r.json(); } catch (e) { return json({ ok: false, error: 'Respuesta invalida de HIBP.' }, 502); }
-  var brechas = datos.map(function (b) {
-    return {
-      nombre: b.Name,
-      anio: String(b.BreachDate || '').slice(0, 4) || '-',
-      datos: (b.DataClasses || []).slice(0, 3).join(', ') || 'Datos no especificados',
-      sitio: b.Domain || b.Name,
-    };
-  });
-  return json({ ok: true, correo: addr, brechas: brechas });
-}
 async function handle(request, env) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (request.method === 'GET' || request.method === 'HEAD') {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
-    if (path === '/api/diagnostico') {
-      if (request.method === 'HEAD') return new Response(null, { status: 204, headers: CORS });
-      return diagnosticar(url.searchParams.get('correo'), env);
-    }
-
     const html = path === '/' || path === '/index.html' ? indexHtml
       : path === '/registro' || path === '/registro.html' ? registroHtml : null;
     if (!html) return json({ ok: false, error: 'Página no encontrada' }, 404);

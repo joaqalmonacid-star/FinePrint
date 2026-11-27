@@ -96,6 +96,6 @@ wrangler secret put BREVO_API_KEY --name fineprint-registro
 4. Si `BREVO_CUSTOM_ATTRS=1`, crear primero en Brevo los campos `EDAD`, `INCIDENTE`, `VARIANTE`, `PRECIO`, `SIN_LEER`, `ORIGEN`.
 5. Revisar que los correos no caigan en spam.
 
-## Diagnóstico de ejemplo con Have I Been Pwned
+## Diagnóstico de demostración
 
-La sección «Tu correo ya aceptó muchos de estos» llama a `GET /api/diagnostico?correo=...` en el Worker. El Worker consulta la API de HIBP con la clave de prueba (secreto `HIBP_API_KEY`, con valor público de prueba por defecto) y solo acepta correos de `@hibp-integration-tests.com`. No se consultan correos reales ni se guarda nada. Para probarlo, elige uno de los tres correos del selector y aprieta *Revisar*. La atribución a Have I Been Pwned es obligatoria y ya figura en el texto de la página.
+La sección «Tu correo ya aceptó muchos de estos» acepta cualquier correo y muestra un expediente con **datos falsos**, generado en el navegador. El correo no se envía a ningún servicio ni se guarda. Al revisarlo aparece el aviso «Otra trampa aceptada», que continúa la dinámica de aceptar los términos sin leerlos. El diagnóstico real llega con el piloto.
