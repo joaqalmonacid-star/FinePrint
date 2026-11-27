@@ -221,6 +221,19 @@
   .tinta-zona .vuela.grande { color: var(--papel); }
   .nota-cielo { position: fixed; left: 16px; bottom: 16px; z-index: 51; background: var(--tinta); color: var(--papel); font-size: 13px; padding: 9px 14px; border-radius: 8px; opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; pointer-events: none; max-width: 260px; line-height: 1.35; }
   .nota-cielo.on { opacity: 1; transform: none; }
+  .btn-ok.absorbiendo { animation: iman .75s ease-out; }
+  @keyframes iman { 0%, 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } 45% { box-shadow: 0 0 0 12px rgba(61,220,132,.42); } }
+
+  /* el gran cartel cuando se prepara el borrado: tapa la columna del formulario, no la carta */
+  .gran-final { position: fixed; inset: 0; z-index: 48; display: none; align-items: center; padding: 6vw; pointer-events: none; }
+  .gran-final.on { display: flex; animation: finalIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .gran-final::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(251,252,253,.98) 0%, rgba(251,252,253,.94) 38%, rgba(251,252,253,0) 76%); }
+  .gran-final-inner { position: relative; max-width: 760px; }
+  .gran-final .kicker { display: inline-block; font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--tinta); background: var(--resaltador); padding: 7px 13px; border-radius: 999px; }
+  .gran-final strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(48px, 8vw, 112px); line-height: .92; letter-spacing: -3px; margin: 16px 0 20px; }
+  .gran-final p { font-family: var(--serif); font-size: clamp(20px, 2.4vw, 30px); line-height: 1.25; max-width: 27ch; }
+  .gran-final p b { color: var(--timbre-d); font-weight: 600; }
+  @keyframes finalIn { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: none; } }
 
   footer { padding: 40px 24px 56px; }
   footer .cont { font-size: 14px; color: var(--gris); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -243,6 +256,10 @@
     .clausulas li { grid-template-columns: 44px 1fr; }
     .vuela { font-size: 12px; }
     .vuela.grande { font-size: 22px; }
+    .gran-final { align-items: flex-start; padding: 92px 20px 24px; }
+    .gran-final::before { background: linear-gradient(180deg, rgba(251,252,253,.98) 0%, rgba(251,252,253,.93) 64%, rgba(251,252,253,0) 100%); }
+    .gran-final strong { font-size: clamp(42px, 12vw, 76px); letter-spacing: -2px; }
+    .gran-final p { font-size: clamp(18px, 4.6vw, 23px); max-width: 34ch; }
   }
   @media (hover: none) { .chica-wrap { cursor: default; } .lupa, .pista { display: none; } }
   @media (prefers-reduced-motion: reduce) {
@@ -255,6 +272,13 @@
 
 <div class="cielo" id="cielo" aria-hidden="true"></div>
 <div class="nota-cielo" id="notaCielo" aria-hidden="true">Datos inventados. Los tuyos viajan igual, sin que lo veas.</div>
+<div class="gran-final" id="granFinal" aria-hidden="true">
+  <div class="gran-final-inner">
+    <span class="kicker">Solicitud lista</span>
+    <strong>Se detuvieron.</strong>
+    <p>Los mensajes dejaron de volar. <b>Eso es lo que pasaría si la empresa borrara tus datos</b>: dejarían de llegarte avisos y spam.</p>
+  </div>
+</div>
 <header class="membrete">
   <a class="marca" href="#"><span class="sello" aria-hidden="true"></span>FinePrint</a>
   <a class="btn-cta js-cta" href="registro.html">Reservar cupo</a>
@@ -590,11 +614,12 @@
     }
   });
   document.getElementById("btnCarta").addEventListener("click", function () {
+    var btn = this;
     document.getElementById("carta").style.display = "block";
-    if (typeof detenerDatos === "function") detenerDatos();
-    this.textContent = "Solicitud lista";
-    this.disabled = true;
+    btn.textContent = "Solicitud lista";
+    btn.disabled = true;
     document.getElementById("finDatos").style.display = "block";
+    if (typeof detenerDatos === "function") detenerDatos(btn);
   });
 
   /* ---------- Alias (demo) ---------- */
@@ -717,15 +742,73 @@
     if (!notaCielo.classList.contains("on")) notaCielo.classList.add("on");
   }
 
-  // al pedir el borrado se corta el río de datos: es el efecto "se acabó el spam"
-  function detenerDatos() {
+  // al pedir el borrado, todos los mensajes son absorbidos por el botón: se acabó el río de datos
+  var granFinal = document.getElementById("granFinal");
+  function detenerDatos(btn) {
+    if (borrando) return;
     borrando = true;
-    cielo.classList.add("detenido");
     cielo.classList.remove("calma");
     notaCielo.classList.remove("on");
+    if (btn) {
+      btn.classList.add("absorbiendo");
+      setTimeout(function () { btn.classList.remove("absorbiendo"); }, 900);
+    }
+
+    var r = btn ? btn.getBoundingClientRect() : { left: innerWidth / 2 - 60, top: innerHeight / 2 - 20, width: 120, height: 40 };
+    var imanX = r.left + r.width / 2;
+    var imanY = r.top + r.height / 2;
+    var mensajes = Array.prototype.slice.call(cielo.querySelectorAll(".vuela"));
+
+    // si el usuario apretó rápido y no hay mensajes en vuelo, se arma una pequeña estampida hacia el botón
+    if (!mensajes.length && !reduce) {
+      var refuerzo = movil ? 8 : 14;
+      for (var i = 0; i < refuerzo; i++) {
+        var el = document.createElement("span");
+        el.className = i % 4 === 0 ? "vuela fuga" : (i % 5 === 0 ? "vuela grande" : "vuela");
+        el.textContent = textoDato();
+        cielo.appendChild(el);
+        var w0 = el.offsetWidth, h0 = el.offsetHeight;
+        var borde = Math.random() < .5
+          ? { x: Math.random() < .5 ? -w0 - 80 : innerWidth + 80, y: rnd(-40, innerHeight) }
+          : { x: rnd(0, innerWidth), y: Math.random() < .5 ? -h0 - 80 : innerHeight + 80 };
+        el.style.transform = "translate(" + borde.x + "px," + borde.y + "px)";
+        mensajes.push(el);
+      }
+    }
+
+    if (!mensajes.length || reduce) {
+      cielo.classList.add("detenido");
+      while (cielo.firstChild) cielo.removeChild(cielo.firstChild);
+      return;
+    }
+
+    granFinal.classList.add("on");
+    var pendientes = mensajes.length;
+    mensajes.forEach(function (el, i) {
+      var cs = getComputedStyle(el);
+      var desde = cs.transform === "none" ? "translate(0px,0px)" : cs.transform;
+      var op = parseFloat(cs.opacity || "1");
+      if (el.getAnimations) el.getAnimations().forEach(function (a) { a.cancel(); });
+      var w = el.offsetWidth, h = el.offsetHeight;
+      var x = imanX - w / 2 + rnd(-24, 24);
+      var y = imanY - h / 2 + rnd(-16, 16);
+      var giro = rnd(-20, 20);
+      var retardo = i * 18;
+      var anim = el.animate([
+        { transform: desde, opacity: op, offset: 0 },
+        { transform: "translate(" + (x + rnd(-46, 46)) + "px," + (y + rnd(-34, 34)) + "px) rotate(" + giro + "deg) scale(.92)", opacity: Math.max(op, .85), offset: .55 },
+        { transform: "translate(" + x + "px," + y + "px) rotate(0deg) scale(.12)", opacity: 0, offset: 1 }
+      ], { duration: 620 + retardo, delay: retardo, easing: "cubic-bezier(.55,0,.85,.35)", fill: "forwards" });
+      anim.onfinish = function () {
+        el.remove();
+        pendientes--;
+        if (pendientes <= 0) cielo.classList.add("detenido");
+      };
+    });
     setTimeout(function () {
       while (cielo.firstChild) cielo.removeChild(cielo.firstChild);
-    }, 800);
+      cielo.classList.add("detenido");
+    }, 1200);
   }
 
   // explosión desde el documento al aceptar
