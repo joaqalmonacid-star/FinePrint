@@ -169,7 +169,7 @@ async function handle(request, env) {
     + '<h1 style="font-family:Georgia,serif;font-size:28px;font-weight:normal;">Tu cupo está reservado.</h1>'
     + '<p>Hola ' + esc(nombre || '') + ',</p>'
     + '<p>Gracias por interesarte en el piloto. Ya dejamos tu cupo separado y te vamos a escribir en los próximos días con los detalles para partir.</p>'
-    + '<p>En el piloto verás dónde están tus datos, te avisaremos si aparecen en una filtración nueva y te dejaremos lista la solicitud para pedir su borramiento. No se cobra nada hoy.</p>'
+    + '<p>En el piloto verás dónde están tus datos, te avisaremos si aparecen en una filtración nueva y te dejaremos lista la solicitud para pedir su borramiento. No se cobra nada hoy ni durante los 14 días: decides hasta el día 19 y solo se cobra si sigues.</p>'
     + '<p style="font-size:13px;color:#5B6472;">Usamos tu correo solo para este piloto. Si quieres que lo borremos, responde a este mensaje.</p>'
     + '<p style="font-family:Georgia,serif;font-size:20px;">— Equipo FinePrint<br>New Ventures Program, Universidad del Desarrollo</p>'
     + '</div>';
