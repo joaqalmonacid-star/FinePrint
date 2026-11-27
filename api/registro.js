@@ -86,7 +86,7 @@ async function handle(request, env) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (request.method === 'GET' || request.method === 'HEAD') {
     const url = new URL(request.url);
-    const path = url.pathname.replace(/\/+$/, ''/'');
+    const path = url.pathname.replace(/\/+$/, '') || '/';
     if (path === '/api/diagnostico') {
       if (request.method === 'HEAD') return new Response(null, { status: 204, headers: CORS });
       return diagnosticar(url.searchParams.get('correo'), env);
