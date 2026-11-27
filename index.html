@@ -789,6 +789,10 @@
     aceptoSinLeer = sinLeer ? "si" : "no";
     actualizarCTAs();
     document.body.classList.add("aceptado", "modo-fineprint");
+    if (sinLeer) {
+      hoja.classList.add("abierto");
+      actualizarBotones();
+    }
     mostrarPerfil();
     document.getElementById("consentTxt").textContent = reproche
       ? "Aceptaste igual, después de ver las cláusulas riesgosas."
