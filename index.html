@@ -93,11 +93,11 @@
   .consecuencias.on { display: block; animation: aparecer .5s ease-out .35s both; }
   .consecuencias h2 { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--gris); margin: 14px 0 2px; }
   .consecuencias ol { list-style: none; counter-reset: cons; }
-  .consecuencias li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
-  .consecuencias li::before { counter-increment: cons; content: "0" counter(cons); font-family: var(--serif); font-size: 19px; color: var(--timbre-d); }
-  .consecuencias .causa { display: block; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--chica); line-height: 1.4; }
-  .consecuencias .efecto { display: block; font-family: var(--serif); font-size: 17px; line-height: 1.35; margin-top: 5px; }
-  .consecuencias .efecto b { font-weight: 600; }
+  .consecuencias li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--linea); }
+  .consecuencias li::before { counter-increment: cons; content: "0" counter(cons); font-family: var(--serif); font-size: 18px; color: var(--timbre-d); }
+  .consecuencias .causa { display: block; font-family: var(--serif); font-size: 12px; font-style: italic; color: var(--chica); line-height: 1.35; }
+  .consecuencias .efecto { display: block; font-family: var(--serif); font-size: clamp(21px, 2.5vw, 27px); line-height: 1.08; letter-spacing: -.5px; margin-top: 6px; }
+  .consecuencias .remate { display: block; font-family: var(--sans); font-size: 13px; color: var(--gris); line-height: 1.35; margin-top: 6px; }
 
   .hero-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); gap: 56px; align-items: start; }
   .hero-texto { padding-top: 12px; }
@@ -416,19 +416,22 @@
       </svg>
     </div>
     <div class="consecuencias" id="consecuencias" aria-live="polite">
-      <h2>Tres cosas que acabas de aceptar</h2>
+      <h2>Lo que acabas de aceptar</h2>
       <ol>
         <li>
-          <span class="causa">7.2 «Podremos compartir tu correo, teléfono e historial con socios comerciales, incluso fuera de Chile.»</span>
-          <span class="efecto">Un correo con tu nombre, tu último pedido y tu ciudad ya no parece phishing: <b>parece una empresa que te conoce</b>. Y no es solo compartir datos: se vende acceso a inferencias sobre ti que no puedes ver ni corregir.</span>
+          <span class="causa">7.2 «Podremos compartir tu correo, teléfono e historial con socios, incluso fuera de Chile.»</span>
+          <span class="efecto">El phishing ya no adivina.</span>
+          <span class="remate">Te escribe con tu nombre, tu pedido y tu ciudad.</span>
         </li>
         <li>
-          <span class="causa">4.3 «Autorizas el tratamiento de tus datos para fines comerciales, estadísticos y de marketing, propios o de terceros.»</span>
-          <span class="efecto">Tu navegación se vuelve un perfil que decide qué te muestran y qué te ofrecen. <b>Si el perfil se equivoca, no puedes revisarlo ni corregirlo</b>: nunca lo ves.</span>
+          <span class="causa">4.3 «Autorizas el tratamiento con fines de marketing, propio o de terceros.»</span>
+          <span class="efecto">Tu vida se vuelve un perfil.</span>
+          <span class="remate">Se vende acceso a inferencias sobre ti. No puedes verlas ni corregirlas.</span>
         </li>
         <li>
-          <span class="causa">9.1 «Conservaremos tus datos aun después de cerrada tu cuenta.»</span>
-          <span class="efecto">Cerrar no borra: los datos quedan en respaldos y en sistemas de terceros. <b>Si aparece una filtración años después, tu correo y tu teléfono siguen ahí</b>, aunque ya no uses el sitio.</span>
+          <span class="causa">9.1 «Conservaremos tus datos aun después de cerrar tu cuenta.»</span>
+          <span class="efecto">Cerrar no borra.</span>
+          <span class="remate">Una filtración años después sigue teniendo tu correo y tu teléfono.</span>
         </li>
       </ol>
     </div>
